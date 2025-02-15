@@ -1,0 +1,440 @@
+﻿@using Microsoft.AspNetCore.Identity
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="utf-8">
+    <title>@ViewData["Title"]</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="" name="keywords">
+    <meta content="" name="description">
+
+    <!-- Favicon -->
+    <link href="~/img/favicon.ico" rel="icon">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Icon Font Stylesheet -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="~/lib/animate/animate.min.css" rel="stylesheet">
+    <link href="~/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+    <link href="~/lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="~/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Template Stylesheet -->
+    <link href="~/css/style.css" rel="stylesheet">
+    <link href="~/css/feedback.css" rel="stylesheet"/>
+    <style>
+        .login-popup {
+            position: fixed;
+            top: -100%; /* Đẩy popup lên trên ngoài màn hình ban đầu */
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Điều chỉnh các phần tử vào đầu của popup */
+            z-index: 999;
+            transition: top 0.3s ease; /* Thêm hiệu ứng chuyển động */
+        }
+
+        .register-popup {
+            position: fixed;
+            top: -100%; /* Đẩy popup lên trên ngoài màn hình ban đầu */
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Điều chỉnh các phần tử vào đầu của popup */
+            z-index: 999;
+            transition: top 0.3s ease; /* Thêm hiệu ứng chuyển động */
+        }
+
+        .login-content {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 5px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 90%;
+            transition: transform 0.3s ease; /* Thêm hiệu ứng chuyển động */
+            transform: translateY(-100%); /* Đẩy nội dung lên trên */
+        }
+
+        .login-popup.active {
+            top: 0; /* Hiển thị popup khi được kích hoạt */
+        }
+
+        .register-popup.active {
+            top: 0; /* Hiển thị popup khi được kích hoạt */
+        }
+
+        .login-content.active {
+            transform: translateY(0); /* Hiển thị nội dung từ trên xuống */
+        }
+
+        #loginForm {
+            max-width: 400px;
+            background: rgba(0, 0, 0, 0.8);
+            flex-grow: 1;
+            padding: 30px 30px 40px;
+            box-shadow: 0px 0px 17px 2px rgba(255, 255, 255, 0.8);
+        }
+
+        #wrapper {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .form-heading {
+            font-size: 25px;
+            color: #f5f5f5;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            border-bottom: 1px solid #fff;
+            margin-top: 15px;
+            margin-bottom: 20px;
+            display: flex;
+        }
+
+            .form-group i {
+                color: #fff;
+                font-size: 14px;
+                padding-top: 5px;
+                padding-right: 10px;
+            }
+
+        .form-input {
+            background: transparent;
+            border: 0;
+            outline: 0;
+            color: #f5f5f5;
+            flex-grow: 1;
+        }
+
+            .form-input::placeholder {
+                color: #f5f5f5;
+            }
+
+        #eye i {
+            padding-right: 0;
+            cursor: pointer;
+        }
+
+        .form-submit {
+            background: transparent;
+            border: 1px solid #f5f5f5;
+            color: #fff;
+            width: 100%;
+            text-transform: uppercase;
+            padding: 6px 10px;
+            transition: 0.25s ease-in-out;
+            margin-top: 30px;
+        }
+
+            .form-submit:hover {
+                border: 1px solid #54a0ff;
+            }
+    </style>
+</head>
+
+<body>
+    <div class="container-xxl bg-white p-0">
+        <!-- Spinner Start -->
+        <div id="spinner" class="bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+        </div>
+        <!-- Spinner End -->
+        <!-- Header Start -->
+        <div class="container-fluid bg-dark px-0">
+            <div class="row gx-0">
+                <div class="col-lg-3 bg-dark d-none d-lg-block">
+                    <a asp-action="index" asp-controller="home" class="navbar-brand w-100 h-100 m-0 p-0 d-flex align-items-center justify-content-center">
+                        <h1 class="m-0 text-primary text-uppercase">Nhóm2</h1>
+                    </a>
+                </div>
+                <div class="col-lg-9">
+                    <div class="row gx-0 bg-white d-none d-lg-flex">
+                        <div class="col-lg-7 px-5 text-start">
+                            <div class="h-100 d-inline-flex align-items-center py-2 me-4">
+                                <i class="fa fa-envelope text-primary me-2"></i>
+                                <p class="mb-0">hotelabc@gmail.com</p>
+                            </div>
+                            <div class="h-100 d-inline-flex align-items-center py-2">
+                                <i class="fa fa-phone-alt text-primary me-2"></i>
+                                <p class="mb-0">+084 9876 54321</p>
+                            </div>
+                        </div>
+                        <div class="col-lg-5 px-5 text-end">
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                                <div class="h-100 d-inline-flex align-items-center py-2 me-4">
+                                    @await Component.InvokeAsync("UserFullName")
+                                </div>
+                                <div class="h-100 d-inline-flex align-items-center py-2">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Logout">Đăng xuất</a>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="h-100 d-inline-flex align-items-center py-2 me-4">
+                                    <a class="register-btn">Đăng ký</a>
+                                </div>
+                                <div class="h-100 d-inline-flex align-items-center py-2">
+                                    @* <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Login">Đăng nhập</a> *@
+                                    <a class="login-btn">Đăng nhập</a>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <nav class="navbar navbar-expand-lg bg-dark navbar-dark p-3 p-lg-0">
+                        <a href="index.html" class="navbar-brand d-block d-lg-none">
+                            <h1 class="m-0 text-primary text-uppercase">Hotelier</h1>
+                        </a>
+                        <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                        <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
+                            <div class="navbar-nav mr-auto py-0">
+                                <a asp-action="index" asp-controller="room" class="nav-item nav-link active">Trang chủ</a>
+                                <a href="#" class="nav-item nav-link">Giới thiệu</a>
+                                <a asp-action="rooms" asp-controller="room" class="nav-item nav-link">Phòng</a>
+                                <a href="#" class="nav-item nav-link">Dịch vụ</a>
+                                @* <div class="nav-item dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Pages</a>
+                                <div class="dropdown-menu rounded-0 m-0">
+                                <a href="booking.html" class="dropdown-item">Booking</a>
+                                <a href="team.html" class="dropdown-item">Our Team</a>
+                                <a href="testimonial.html" class="dropdown-item">Testimonial</a>
+                                </div>
+                                </div> *@
+                                <a href="#" class="nav-item nav-link">Liên hệ</a>
+                            </div>
+                            @if (User.IsInRole("Receptionist") || User.IsInRole("Admin")||User.IsInRole("Accountant"))
+                            {
+                                <a asp-action="roomstatus" asp-controller="Roommanager" asp-area="admin" class="btn btn-primary rounded-0 py-4 px-md-5 d-none d-lg-block">Quản lý<i class="fa fa-arrow-right ms-3"></i></a>
+                            }
+                            else
+                            {
+                                if (User.Identity.IsAuthenticated)
+                                {
+                                    <a asp-action="History" asp-controller="booking" class="nav-item nav-link">Lịch sử</a>
+                                }
+                                <a asp-action="Booking" asp-controller="booking" class="btn btn-primary rounded-0 py-4 px-md-5 d-none d-lg-block">ĐẶT PHÒNG<i class="fa fa-arrow-right ms-3"></i></a>
+                            }
+                        </div>
+                    </nav>
+                </div>
+            </div>
+        </div>
+        <!-- Header End -->
+        <!-- Carousel Start -->
+
+        <div class="register-popup hidden" id="wrapper">
+            <form asp-action="Register" asp-controller="Account" id="loginForm">
+                <h1 class="form-heading">Form đăng ký</h1>
+                <div class="form-group">
+                    <i class="fas fa-phone"></i>
+                    <input name="PhoneNumber" type="text" class="form-input" placeholder="Số điện thoại">
+                </div>
+                <div class="form-group">
+                    <i class="far fa-user"></i>
+                    <input name="FullName" type="text" class="form-input" placeholder="Họ và tên">
+                </div>
+                <div class="form-group">
+                    <i class="far fa-envelope"></i>
+                    <input name="Email" type="text" class="form-input" placeholder="Email">
+                </div>
+                <div class="form-group">
+                    <i class="fas fa-key"></i>
+                    <input name="Password" type="password" class="form-input" placeholder="Mật khẩu">
+                    <div id="eye">
+                        <i class="far fa-eye"></i>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <i class="fas fa-key"></i>
+                    <input name="ConfirmPassword" type="password" class="form-input" placeholder="Nhập Lại Mật khẩu">
+                    <div id="eye">
+                        <i class="far fa-eye"></i>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary form-submit">Register</button>
+            </form>
+        </div>
+        <div class="login-popup hidden" id="wrapper">
+            <form asp-action="Login" asp-controller="Account" id="loginForm">
+                <h1 class="form-heading">Form đăng nhập</h1>
+                <div class="form-group">
+                    <i class="far fa-user"></i>
+                    <input name="UserName" type="text" class="form-input" placeholder="Tên đăng nhập">
+                </div>
+                <div class="form-group">
+                    <i class="fas fa-key"></i>
+                    <input name="Password" type="password" class="form-input" placeholder="Mật khẩu">
+                    <div id="eye">
+                        <i class="far fa-eye"></i>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary form-submit">Login</button>
+            </form>
+        </div>
+        <div id="main" class="container-xxl py-5">
+            @RenderBody()
+        </div>
+
+        <!-- Carousel End -->
+        <!-- Booking Start -->
+        <!-- Booking End -->
+        <!-- About Start -->
+        <!-- About End -->
+        <!-- Room Start -->
+        <!-- Room End -->
+        <!-- Video Start -->
+        <!-- Service Start -->
+        <!-- Service End -->
+        <!-- Testimonial Start -->
+        <!-- Testimonial End -->
+        <!-- Team Start -->
+        <!-- Team End -->
+        <!-- Newsletter Start -->
+        <!-- Newsletter Start -->
+        <!-- Footer Start -->
+        <div class=" bg-dark text-light" data-wow-delay="0.1s" style="visibility: visible; animation-delay: 0.1s; animation-name: fadeIn;">
+            <div class="container pb-5">
+                <div class="row g-5">
+                    <div class="col-md-6 col-lg-4">
+                        <div class="bg-primary rounded p-4">
+                            <a href="index.html"><h1 class="text-white text-uppercase mb-3">HotelABC</h1></a>
+                            <p class="text-white mb-0">
+                                Download <a class="text-dark fw-medium" href="https://htmlcodex.com/hotel-html-template-pro">Khách sạn ABC</a>, build a professional website for your hotel business and grab the attention of new visitors upon your site’s launch.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3">
+                        <h6 class="section-title text-start text-primary text-uppercase mb-4">Contact</h6>
+                        <p class="mb-2"><i class="fa fa-map-marker-alt me-3"></i>123 Street, New York, USA</p>
+                        <p class="mb-2"><i class="fa fa-phone-alt me-3"></i>+012 345 67890</p>
+                        <p class="mb-2"><i class="fa fa-envelope me-3"></i>info@example.com</p>
+                        <div class="d-flex pt-2">
+                            <a class="btn btn-outline-light btn-social" href=""><i class="fab fa-twitter"></i></a>
+                            <a class="btn btn-outline-light btn-social" href=""><i class="fab fa-facebook-f"></i></a>
+                            <a class="btn btn-outline-light btn-social" href=""><i class="fab fa-youtube"></i></a>
+                            <a class="btn btn-outline-light btn-social" href=""><i class="fab fa-linkedin-in"></i></a>
+                        </div>
+                    </div>
+                    <div class="col-lg-5 col-md-12">
+                        <div class="row gy-5 g-4">
+                            <div class="col-md-6">
+                                <h6 class="section-title text-start text-primary text-uppercase mb-4">Company</h6>
+                                <a class="btn btn-link" href="">About Us</a>
+                                <a class="btn btn-link" href="">Contact Us</a>
+                                <a class="btn btn-link" href="">Privacy Policy</a>
+                                <a class="btn btn-link" href="">Terms &amp; Condition</a>
+                                <a class="btn btn-link" href="">Support</a>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="section-title text-start text-primary text-uppercase mb-4">Services</h6>
+                                <a class="btn btn-link" href="">Food &amp; Restaurant</a>
+                                <a class="btn btn-link" href="">Spa &amp; Fitness</a>
+                                <a class="btn btn-link" href="">Sports &amp; Gaming</a>
+                                <a class="btn btn-link" href="">Event &amp; Party</a>
+                                <a class="btn btn-link" href="">GYM &amp; Yoga</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container">
+                <div class="copyright">
+                    <div class="row">
+                        <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                            © <a class="border-bottom" href="#">Your Site Name</a>, All Right Reserved.
+
+                            <!--/*** This template is free as long as you keep the footer author’s credit link/attribution link/backlink. If you'd like to use the template without the footer author’s credit link/attribution link/backlink, you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". Thank you for your support. ***/-->
+                            Designed By <a class="border-bottom" href="https://htmlcodex.com">HTML Codex</a>
+                        </div>
+                        <div class="col-md-6 text-center text-md-end">
+                            <div class="footer-menu">
+                                <a href="">Trang chủ</a>
+                                <a href="">Cookies</a>
+                                <a href="">Help</a>
+                                <a href="">FQAs</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Footer End -->
+        <!-- Back to Top -->
+        <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top" style="display: none;"><i class="bi bi-arrow-up"></i></a>
+    </div>
+
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/wow/wow.min.js"></script>
+    <script src="~/lib/easing/easing.min.js"></script>
+    <script src="~/lib/waypoints/waypoints.min.js"></script>
+    <script src="~/lib/counterup/counterup.min.js"></script>
+    <script src="~/lib/owlcarousel/owl.carousel.min.js"></script>
+    <script src="~/lib/tempusdominus/js/moment.min.js"></script>
+    <script src="~/lib/tempusdominus/js/moment-timezone.min.js"></script>
+    <script src="~/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
+
+    <!-- Template Javascript -->
+    <script src="~/js/main.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+    <script>
+        const registerBtn = document.querySelector('.register-btn');
+        const registerPopup = document.querySelector('.register-popup');
+        const registerContent = document.querySelector('.register-content');
+        const loginBtn = document.querySelector('.login-btn');
+        const loginPopup = document.querySelector('.login-popup');
+        const closeBtn = document.querySelector('.close-btn');
+        const loginContent = document.querySelector('.login-content');
+
+        registerBtn.addEventListener('click', () => {
+            registerPopup.classList.add('active'); // Thêm lớp active để hiển thị popup
+            setTimeout(() => {
+                registerContent.classList.add('active'); // Hiển thị nội dung từ trên xuống sau một chút
+            }, 50); // Đợi một chút để hiển thị hiệu ứng tốt hơn
+        });
+
+        loginBtn.addEventListener('click', () => {
+            loginPopup.classList.add('active'); // Thêm lớp active để hiển thị popup
+            setTimeout(() => {
+                loginContent.classList.add('active'); // Hiển thị nội dung từ trên xuống sau một chút
+            }, 50); // Đợi một chút để hiển thị hiệu ứng tốt hơn
+        });
+
+        closeBtn.addEventListener('click', () => {
+            loginContent.classList.remove('active'); // Ẩn nội dung trước
+            setTimeout(() => {
+                loginPopup.classList.remove('active'); // Ẩn popup sau khi nội dung được ẩn
+            }, 300); // Thời gian của hiệu ứng ẩn
+        });
+    </script>
+
+</body>
+
+</html>

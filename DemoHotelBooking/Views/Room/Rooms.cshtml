@@ -1,0 +1,48 @@
+﻿@using DemoHotelBooking.ViewModels
+@model IEnumerable<DemoHotelBooking.Models.Room>
+
+@{
+    ViewData["Title"] = "Rooms";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link href="~/css/search.css" rel="stylesheet">
+@* <input type="text" class="input" name="s" onmouseout="this.value = ''; this.blur();"> *@
+<div class="box">
+    <form id="form" name="search">
+        <input type="text" id="searchInput" class="input" name="s">
+    </form>
+    <i class="fas fa-search"></i>
+</div>
+<div id="room" class="container-xxl py-5">
+    <div class="container">
+        <div class="text-center wow fadeInUp" data-wow-delay="0.1s" style="visibility: visible; animation-delay: 0.1s; animation-name: fadeInUp;">
+            <h6 class="section-title text-center text-primary text-uppercase">Our Rooms</h6>
+            <h1 class="mb-5">Explore Our <span class="text-primary text-uppercase">Rooms</span></h1>
+        </div>
+        
+        @Html.Partial("RoomList", Model)
+        
+    </div>
+</div>
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#searchInput').on('input', function () {
+                var searchQuery = $(this).val();
+
+                $.ajax({
+                    url: '@Url.Action("RoomList", "Room")',
+                    type: 'POST',
+                    data: { s: searchQuery },
+                    success: function (result) {
+                        $('#room').html(result);
+                    },
+                    error: function () {
+                        alert('An error has occurred');
+                    }
+                });
+            });
+        });
+    </script>
+}

@@ -1,0 +1,81 @@
+﻿@model IEnumerable<DemoHotelBooking.ViewModels.RoomViewModel>
+
+@{
+    ViewData["Title"] = "RoomStatus";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<style>
+    .item-container {
+        position: relative;
+    }
+
+    .image-container {
+        position: relative;
+        display: inline-block;
+    }
+
+    .box {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        padding: 5px 10px;
+        border-radius: 5px;
+        color: white;
+        font-weight: bold;
+    }
+    .img{
+        width: 100%;
+        height: auto;
+    }
+    .my-div{
+        color: #ffff
+    }
+</style>
+<h1 class="text-center">Tình trạng phòng</h1>
+<form asp-action="RoomStatus" asp-controller="RoomManager" asp-area="Admin">
+    <select name="date">
+        <option value="1">
+            Hiện tại
+        </option>
+        <option value="2">
+            6:00 - 12:00
+        </option>
+        <option value="3">
+            12:00 - 18:00
+        </option>
+        <option value="4">
+            18:00 - 24:00
+        </option>
+    </select>
+    <input class="btn btn-waring" type="submit" />
+</form>
+<div class="container ">
+    <div class="row">      
+        @foreach (var item in Model)
+        {
+            <div class="col-4 col-md-3 col-lg-3 item-container" style="padding: 20px">
+                <div class="image-container">
+                    @if (item.Id % 3 == 1)
+                    {
+                        <img class="img-fluid" src="~/img/room-1.jpg" alt="">
+                    }
+                    else if (item.Id % 3 == 2)
+                    {
+                        <img class="img-fluid" src="~/img/room-2.jpg" alt="">
+                    }
+                    else
+                    {
+                        <img class="img-fluid" src="~/img/room-3.jpg" alt="">
+                    }
+                    <div class="box @item.StatusColor" style="margin:5px;">
+                        @Html.DisplayFor(modelItem => item.Status)
+                    </div>
+                    <div class="text-center my-div bg-dark">
+                        
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
