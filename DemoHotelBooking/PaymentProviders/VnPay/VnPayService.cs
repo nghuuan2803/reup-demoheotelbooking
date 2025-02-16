@@ -1,7 +1,6 @@
 ﻿using DemoHotelBooking.Helper;
-using DemoHotelBooking.ViewModels;
 
-namespace DemoHotelBooking.Services
+namespace DemoHotelBooking.PaymentProviders.VnPay
 {
     public class VnPayService : IVnPayService
     {
@@ -11,7 +10,7 @@ namespace DemoHotelBooking.Services
         {
             _config = config;
         }
-        public string CreatePaymentUrl(HttpContext context, VnPaymentRequestModel model, string? url)
+        public string CreatePaymentUrl(HttpContext context, VnPaymentRequestModel model, string? action)
         {
             var tick = DateTime.Now.Ticks.ToString();
             var vnpay = new VnPayLibrary();
@@ -21,12 +20,12 @@ namespace DemoHotelBooking.Services
             vnpay.AddRequestData("vnp_Amount", (model.Amount * 100).ToString());
             vnpay.AddRequestData("vnp_CreateDate", model.CreateDate.ToString("yyyyMMddHHmmss"));
             vnpay.AddRequestData("vnp_CurrCode", _config["VnPay:CurrCode"]);
-            vnpay.AddRequestData("vnp_IpAddr", Utils.GetIpAddress(context));
+            vnpay.AddRequestData("vnp_IpAddr", IpHelper.GetIpAddress(context));
             vnpay.AddRequestData("vnp_Locale", _config["VnPay:Locale"]);
             vnpay.AddRequestData("vnp_OrderInfo", "Thanh toán cho đơn đặt phòng: " + model.BookingId);
             vnpay.AddRequestData("vnp_OrderType", "other");
             vnpay.AddRequestData("vnp_TxnRef", tick);
-            if (url == "")
+            if (action == "invoice")
                 vnpay.AddRequestData("vnp_ReturnUrl", "http://localhost:5145/Invoice/PaymentCallBack");
             else
                 vnpay.AddRequestData("vnp_ReturnUrl", _config["VnPay:PaymentBackReturnUrl"]);

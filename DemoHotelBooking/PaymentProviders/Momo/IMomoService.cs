@@ -1,7 +1,6 @@
-﻿using DemoHotelBooking.Models.Momo;
-using DemoHotelBooking.Models.Order;
+﻿using DemoHotelBooking.Models.Order;
 
-namespace DemoHotelBooking.Services
+namespace DemoHotelBooking.PaymentProviders.Momo
 {
     public interface IMomoService
     {

@@ -1,4 +1,4 @@
-﻿namespace DemoHotelBooking.ViewModels
+﻿namespace DemoHotelBooking.PaymentProviders.VnPay
 {
     public class VnPaymentResponseModel
     {
@@ -10,13 +10,5 @@
         public string TransactionId { get; set; }
         public string Token { get; set; }
         public string VnPayResponseCode { get; set; }
-    }
-    public class VnPaymentRequestModel
-    {
-        public string FullName { get; set; }
-        public string Description { get; set; }
-        public double Amount { get; set; }
-        public DateTime CreateDate { get; set; }
-        public int BookingId { get; set; }
     }
 }

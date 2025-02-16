@@ -1,12 +1,11 @@
-﻿using DemoHotelBooking.Models.Momo;
-using DemoHotelBooking.Models.Order;
+﻿using DemoHotelBooking.Models.Order;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using RestSharp;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace DemoHotelBooking.Services
+namespace DemoHotelBooking.PaymentProviders.Momo
 {
     public class MomoService : IMomoService
     {
@@ -17,6 +16,10 @@ namespace DemoHotelBooking.Services
             _options = options;
         }
 
+        //Lấy link thanh toán từ momo
+        //1. Tạo dữ liệu request gửi lên momo
+        //2. Momo trả về link thanh toán
+        //3. return link thanh toán
         public async Task<MomoCreatePaymentResponseModel> CreatePaymentAsync(OrderInfoModel model, string action)
         {
             model.OrderId = DateTime.UtcNow.Ticks.ToString();
@@ -44,7 +47,7 @@ namespace DemoHotelBooking.Services
                 orderInfo = model.OrderInfo,
                 requestId = model.OrderId,
                 extraData = "",
-                signature = signature
+                signature
             };
             if (action == "invoice")
             {
@@ -60,7 +63,7 @@ namespace DemoHotelBooking.Services
                     orderInfo = model.OrderInfo,
                     requestId = model.OrderId,
                     extraData = "",
-                    signature = signature
+                    signature
                 };
             }
             request.AddParameter("application/json", JsonConvert.SerializeObject(requestData), ParameterType.RequestBody);
@@ -75,11 +78,13 @@ namespace DemoHotelBooking.Services
             var amount = collection.First(s => s.Key == "amount").Value;
             var orderInfo = collection.First(s => s.Key == "orderInfo").Value;
             var orderId = collection.First(s => s.Key == "orderId").Value;
+            var resultCode = collection.First(s => s.Key == "errorCode").Value;
             return new MomoExecuteResponseModel()
             {
                 Amount = amount,
                 OrderId = orderId,
-                OrderInfo = orderInfo
+                OrderInfo = orderInfo,
+                ErrorCode = int.Parse(resultCode)
             };
         }
 

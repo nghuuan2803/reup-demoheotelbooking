@@ -21,12 +21,6 @@
                 @Html.DisplayNameFor(model => model.Price)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Introduce)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
                 @Html.DisplayNameFor(model => model.DAP)
             </th>
             <th>
@@ -51,13 +45,6 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.Price)
                 </td>
-
-                <td>
-                    @Html.DisplayFor(modelItem => item.Introduce)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Description)
-                </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.DAP)
                 </td>
@@ -65,7 +52,10 @@
                     @Html.DisplayFor(modelItem => item.MAP)
                 </td>
                 <td>
-                    <a class="text-warning" asp-area="Admin" asp-controller="RoomManager" asp-action="Details" asp-route-id="@item.Id">Details</a>
+                    <a class="text-warning" asp-area="Admin" asp-controller="RoomManager" asp-action="Details" asp-route-id="@item.Id">Chi tiết</a>
+                </td>
+                <td>
+                    <a class="text-warning" asp-area="Admin" asp-controller="RoomManager" asp-action="Update" asp-route-id="@item.Id">Cập nhật</a>
                 </td>
             </tr>
         }

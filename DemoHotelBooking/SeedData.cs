@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using DemoHotelBooking.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-namespace DemoHotelBooking.Models
+namespace DemoHotelBooking
 {
     public static class SeedData
     {

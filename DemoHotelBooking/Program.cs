@@ -1,6 +1,7 @@
 ﻿using DemoHotelBooking.Models;
-using DemoHotelBooking.Models.Momo;
-using DemoHotelBooking.Services;
+using DemoHotelBooking.PaymentProviders;
+using DemoHotelBooking.PaymentProviders.Momo;
+using DemoHotelBooking.PaymentProviders.VnPay;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,7 +23,10 @@ namespace DemoHotelBooking
             // Add services to the container.
             builder.Services.AddControllersWithViews();
             builder.Services.Configure<MomoOptionModel>(builder.Configuration.GetSection("MomoAPI"));
+            builder.Services.Configure<VnPayOptionModel>(builder.Configuration.GetSection("VnPay"));
             builder.Services.AddScoped<IMomoService, MomoService>();
+            builder.Services.AddScoped<IVnPayService, VnPayService>();
+            builder.Services.AddScoped<IPaymentProvider, VnPayAdapter>();
             builder.Services.ConfigureApplicationCookie(options =>
             {
                 options.LoginPath = "/Account/Login";
@@ -45,7 +49,6 @@ namespace DemoHotelBooking
             }).AddEntityFrameworkStores<AppDbContext>();            
 
             //thanh toán vnpay
-            builder.Services.AddSingleton<IVnPayService, VnPayService>();
             var app = builder.Build();
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())

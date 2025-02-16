@@ -1,6 +1,7 @@
 ﻿using DemoHotelBooking.Models;
 using DemoHotelBooking.Models.Order;
-using DemoHotelBooking.Services;
+using DemoHotelBooking.PaymentProviders.Momo;
+using DemoHotelBooking.PaymentProviders.VnPay;
 using DemoHotelBooking.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;

@@ -1,6 +1,4 @@
-﻿using DemoHotelBooking.ViewModels;
-
-namespace DemoHotelBooking.Services
+﻿namespace DemoHotelBooking.PaymentProviders.VnPay
 {
     public interface IVnPayService
     {

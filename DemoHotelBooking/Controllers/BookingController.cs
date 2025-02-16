@@ -1,6 +1,8 @@
 ﻿using DemoHotelBooking.Models;
 using DemoHotelBooking.Models.Order;
-using DemoHotelBooking.Services;
+using DemoHotelBooking.PaymentProviders;
+using DemoHotelBooking.PaymentProviders.Momo;
+using DemoHotelBooking.PaymentProviders.VnPay;
 using DemoHotelBooking.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -17,22 +19,21 @@ namespace DemoHotelBooking.Controllers
         private readonly SignInManager<AppUser> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly AppDbContext _context;
-        private readonly IVnPayService _vnPayService;
-        private readonly IMomoService _momoService;
+        private readonly IPaymentProvider _payment;
 
         private BookingViewModel currentBooking;
         private AppUser currentUser;
-        public BookingController(IMomoService momoService, AppDbContext context, UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, RoleManager<IdentityRole> roleManager, IVnPayService service)
+        public BookingController(IPaymentProvider payment, AppDbContext context, UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, RoleManager<IdentityRole> roleManager)
         {
-            _vnPayService = service;
+            _payment = payment;
             _context = context;
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
-            _momoService = momoService;
         }
         private Task<AppUser> GetCurrentUserAsync() => _userManager.GetUserAsync(HttpContext.User);
 
+        #region session manager
         //Lấy thông tin đặt phòng từ session
         private BookingViewModel GetBookingFromSession()
         {
@@ -49,7 +50,9 @@ namespace DemoHotelBooking.Controllers
             var bookingJson = JsonConvert.SerializeObject(booking);
             HttpContext.Session.SetString("CurrentBooking", bookingJson);
         }
+        #endregion
 
+        #region create booking
         //Đặt phòng
         [HttpGet]
         public async Task<IActionResult> Booking(int? id)
@@ -139,15 +142,85 @@ namespace DemoHotelBooking.Controllers
                     OrderId = new Random().Next(1, 1000).ToString(),
                     OrderInfo = $"{model.Phone}-{model.Name}",
                 };
-                var response = await _momoService.CreatePaymentAsync(order, "booking");
-                var url = response.PayUrl;
-                return Redirect(url);
+
+                var paymentRequest = new PaymentRequest
+                {
+                    FullName = user.FullName,
+                    Amount = (double)currentBooking.Deposit,
+                    OrderId = new Random().Next(1, 1000).ToString(),
+                    OrderInfo = $"{model.Phone}-{model.Name}",
+                    Action = "booking",
+                    CreateDate = DateTime.Now,
+                    Context = HttpContext
+                };
+                var response = await _payment.CreatePaymentAsync(paymentRequest);
+                var paymentUrl = response.PaymentUrl;
+                return Redirect(paymentUrl);
             }
             ViewData["availbleRooms"] = currentBooking.AvailbleRooms;
             ViewData["bookingRooms"] = currentBooking.SelectedRooms;
             return View(model);
 
         }
+        //kết quả trả về của VNPAY
+        [Route("payment-callback")]
+        public async Task<IActionResult> PaymentCallBack()
+        {
+            // Lấy thông tin từ query string của VnPay để xác thực và cập nhật trạng thái đơn hàng
+            //var response = _vnPayService.PaymentExecute(Request.Query);
+            var query = HttpContext.Request.Query;
+            var response = _payment.ExecutePayment(HttpContext.Request.Query);
+            if (response == null || !response.IsSuccess)
+            {
+                //thanh toán thất bại
+                return RedirectToAction("PaymentFail");
+            }
+            //lấy thông tin đặt phòng từ viewmodel
+            currentBooking = GetBookingFromSession();
+
+            //lấy thông tin khách hàng
+            // tạo mới đơn đặt phòng
+            var booking = new Booking
+            {
+                CreateDate = DateTime.Now,
+                CheckinDate = currentBooking.CheckinDate,
+                CheckoutDate = currentBooking.CheckoutDate,
+                Deposit = (double)currentBooking.Deposit,
+                CusID = currentBooking.Customer.Id,
+                Status = 1
+            };
+            //lưu vào DB
+            _context.Bookings.Add(booking);
+            await _context.SaveChangesAsync();
+
+            //thêm và lưu danh sách phòng đã chọn
+            foreach (var room in currentBooking.SelectedRooms)
+            {
+                var detail = new BookingDetail
+                {
+                    BookingId = booking.Id,
+                    RoomId = room.Id,
+                    Price = room.Price
+                };
+                _context.BookingDetails.Add(detail);
+                await _context.SaveChangesAsync();
+            }
+            //xóa viewmodel
+            HttpContext.Session.Remove("CurrentBooking");
+
+            return RedirectToAction("PaymentSuccess");
+        }
+        public IActionResult PaymentSuccess()
+        {
+            return View();
+        }
+        public IActionResult PaymentFail()
+        {
+            return View();
+        }
+        #endregion
+
+        #region booking actions
         //Chọn phòng
         public IActionResult AddRoom(int Id)
         {
@@ -214,86 +287,6 @@ namespace DemoHotelBooking.Controllers
             SaveBookingToSession(currentBooking);
         }
         //tạo tài khoản cho người chưa đăng ký
-        public async Task<bool> CreateUnRegisterUser(string Phone, string FullName)
-        {
-            bool flag = _context.Users.Any(i => i.PhoneNumber == Phone);
-            if (flag) return false;
-
-            var user = new AppUser
-            {
-                UserName = Phone,
-                FullName = FullName,
-                IsRegisted = false,
-                PhoneNumber = Phone
-            };
-            var result = await _userManager.CreateAsync(user, "Abcd@1234");
-            if (result.Succeeded)
-            {
-                // Gán vai trò "Customer" cho người dùng
-                await _userManager.AddToRoleAsync(user, "Customer");
-
-                return true;
-            }
-            return false;
-        }
-
-
-        //kết quả trả về của VNPAY
-        [Route("payment-callback")]
-        public async Task<IActionResult> PaymentCallBack()
-        {
-            // Lấy thông tin từ query string của VnPay để xác thực và cập nhật trạng thái đơn hàng
-            //var response = _vnPayService.PaymentExecute(Request.Query);
-            var response = _momoService.PaymentExecuteAsync(HttpContext.Request.Query);
-            if (response == null)
-            {
-                //thanh toán thất bại
-                return RedirectToAction("PaymentFail");
-            }
-
-            //lấy thông tin đặt phòng từ viewmodel
-            currentBooking = GetBookingFromSession();
-
-            //lấy thông tin khách hàng
-            // tạo mới đơn đặt phòng
-            var booking = new Booking
-            {
-                CreateDate = DateTime.Now,
-                CheckinDate = currentBooking.CheckinDate,
-                CheckoutDate = currentBooking.CheckoutDate,
-                Deposit = (double)currentBooking.Deposit,
-                CusID = currentBooking.Customer.Id,
-                Status = 1
-            };
-            //lưu vào DB
-            _context.Bookings.Add(booking);
-            await _context.SaveChangesAsync();
-
-            //thêm và lưu danh sách phòng đã chọn
-            foreach (var room in currentBooking.SelectedRooms)
-            {
-                var detail = new BookingDetail
-                {
-                    BookingId = booking.Id,
-                    RoomId = room.Id,
-                    Price = room.Price
-                };
-                _context.BookingDetails.Add(detail);
-                await _context.SaveChangesAsync();
-            }
-            //xóa viewmodel
-            HttpContext.Session.Remove("CurrentBooking");
-
-            return RedirectToAction("PaymentSuccess");
-        }
-        public IActionResult PaymentSuccess()
-        {
-            return View();
-        }
-        public IActionResult PaymentFail()
-        {
-            return View();
-        }
 
         public async Task<IActionResult> History()
         {
@@ -330,6 +323,29 @@ namespace DemoHotelBooking.Controllers
             _context.Bookings.Update(bk);
             _context.SaveChanges();
             return RedirectToAction("BookingDetails", new { id = id });
+        }
+        #endregion
+        private async Task<bool> CreateUnRegisterUser(string Phone, string FullName)
+        {
+            bool flag = _context.Users.Any(i => i.PhoneNumber == Phone);
+            if (flag) return false;
+
+            var user = new AppUser
+            {
+                UserName = Phone,
+                FullName = FullName,
+                IsRegisted = false,
+                PhoneNumber = Phone
+            };
+            var result = await _userManager.CreateAsync(user, "Abcd@1234");
+            if (result.Succeeded)
+            {
+                // Gán vai trò "Customer" cho người dùng
+                await _userManager.AddToRoleAsync(user, "Customer");
+
+                return true;
+            }
+            return false;
         }
     }
 }
