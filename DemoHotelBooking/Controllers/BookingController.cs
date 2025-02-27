@@ -110,7 +110,7 @@ namespace DemoHotelBooking.Controllers
                     ViewData["bookingRooms"] = currentBooking.SelectedRooms;
                     return View(model);
                 }
-                if (model.CheckinDate >= model.CheckoutDate || model.CheckoutDate.Day - model.CheckinDate.Day < 1)
+                if (model.CheckinDate >= model.CheckoutDate || numberOfDays < 1)
                 {
                     ViewBag.Error = "Cần đặt ít nhất 1 ngày!!!";
                     ViewData["availbleRooms"] = currentBooking.AvailbleRooms;
