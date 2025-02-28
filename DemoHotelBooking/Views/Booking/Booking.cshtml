@@ -62,14 +62,16 @@
                         <!--Time-->
                         <div class="col-md-6">
                             <div class="form-floating date" id="date3" data-target-input="nearest">
-                                <input type="datetime-local" class="form-control datetimepicker-input" name="CheckinDate" id="CheckInDate" placeholder="Check In" data-target="#date3" data-toggle="datetimepicker" required>
+                                <input type="datetime" class="form-control datetimepicker-input" name="CheckinDate" id="CheckInDate" placeholder="Check In" required>
+                                @* <input type="datetime-local" class="form-control datetimepicker-input" name="CheckinDate" id="CheckInDate" placeholder="Check In" data-target="#date3" data-toggle="datetimepicker" required> *@
                                 <label  class="control-label" for="CheckInDate">Ngày nhận phòng</label>
                                 <span asp-validation-for="CheckinDate" class="text-danger"></span>
                             </div>
                         </div>    
                         <div class="col-md-6">
                             <div class="form-floating date" id="date4" data-target-input="nearest">
-                                <input type="datetime-local" name="CheckoutDate" class="form-control datetimepicker-input" id="CheckOutDate" placeholder="Check Out" data-target="#date4" data-toggle="datetimepicker" required>
+                                <input type="datetime" name="CheckoutDate" class="form-control datetimepicker-input" id="CheckOutDate" placeholder="Check Out" required>
+                                @* <input type="datetime-local" name="CheckoutDate" class="form-control datetimepicker-input" id="CheckOutDate" placeholder="Check Out" data-target="#date4" data-toggle="datetimepicker" required> *@
                                 <label asp-for="CheckoutDate" class="control-label" for="CheckOutDate">Ngày trả</label>
                                 <span asp-validation-for="CheckoutDate" class="text-danger"></span>
                             </div>
