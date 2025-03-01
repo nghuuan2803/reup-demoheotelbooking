@@ -14,7 +14,7 @@ namespace Tests
     {
         private IWebDriver driver;
         private WebDriverWait wait;
-        private string baseUrl = "http://localhost:5000";
+        private string baseUrl = "http://localhost:5145";
 
         [SetUp]
         public void Setup()
@@ -59,7 +59,7 @@ namespace Tests
         [Test]
         public void Test_Login_Failure_WrongPassword()
         {
-            Login("validUser", "wrongPassword");
+            Login("admin", "wrongPassword");
 
             // Kiểm tra thông báo lỗi xuất hiện
             var errorMessage = driver.FindElement(By.ClassName("text-danger")).Text;
@@ -100,7 +100,7 @@ namespace Tests
         [Test]
         public void Test_Login_Redirect_ReturnUrl()
         {
-            string returnUrl = "/ProtectedPage";
+            string returnUrl = "/room";
             driver.Navigate().GoToUrl($"{baseUrl}/Account/Login?returnUrl={returnUrl}");
 
             Login("validUser", "validPassword");

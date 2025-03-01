@@ -10,7 +10,7 @@ namespace DemoHotelBooking.Tests
 	public class RegisterTests
 	{
 		private IWebDriver driver;
-		private string baseUrl = "http://localhost:5000/Account/Register"; // Cập nhật URL theo cấu hình của bạn
+		private string baseUrl = "http://localhost:5145/Account/Register"; // Cập nhật URL theo cấu hình của bạn
 
 		[SetUp]
 		public void SetUp()
@@ -33,7 +33,7 @@ namespace DemoHotelBooking.Tests
 			wait.Until(d => d.Url.Contains("/Room"));
 
 			// Kiểm tra URL sau khi chuyển hướng
-			Assert.AreEqual("http://localhost:5000/Room", driver.Url);
+			Assert.AreEqual("http://localhost:5145/Room", driver.Url);
 		}
 
 /*		[Test] // Tấn công brute force
@@ -135,7 +135,7 @@ namespace DemoHotelBooking.Tests
 			WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
 			wait.Until(d => d.Url.Contains("/Room"));
 
-			Assert.AreEqual("http://localhost:5000/Room", driver.Url);
+			Assert.AreEqual("http://localhost:5145/Room", driver.Url);
 		}
 
 		[Test] // Email đã tồn tại
@@ -222,23 +222,35 @@ namespace DemoHotelBooking.Tests
 			Assert.IsTrue(errorMessage.Contains("The Số điện thoại field is required."));
 		}
 
-		[Test] // XSS Injection trong tên
-		public void Register_With_XSS_Injection_Should_Fail()
-		{
-			var registerPage = new RegisterPage(driver);
-			registerPage.EnterPhoneNumber("0123456789");
-			registerPage.EnterFullName("<script>alert('XSS')</script>");
-			registerPage.EnterEmail("testuser@example.com");
-			registerPage.EnterPassword("StrongPass123!");
-			registerPage.EnterConfirmPassword("StrongPass123!");
-			registerPage.SubmitButton.Click();
+		[Test]
+public void Register_With_XSS_Injection_Should_Fail()
+{
+    var registerPage = new RegisterPage(driver);
+    registerPage.EnterPhoneNumber("0123456789");
+    registerPage.EnterFullName("<script>alert('XSS')</script>");
+    registerPage.EnterEmail("testuser@example.com");
+    registerPage.EnterPassword("StrongPass123!");
+    registerPage.EnterConfirmPassword("StrongPass123!");
 
-			string fullnameError = registerPage.FullNameInput.GetAttribute("validationMessage");
+    // Đợi nút Submit sẵn sàng
+    WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
+    wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(registerPage.SubmitButton));
 
-			Console.WriteLine("Fullname validation message: " + fullnameError);
+    // Nhấp bằng JavaScript nếu cần
+    try 
+    {
+        registerPage.SubmitButton.Click();
+    }
+    catch (ElementClickInterceptedException)
+    {
+        IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
+        js.ExecuteScript("arguments[0].click();", registerPage.SubmitButton);
+    }
 
-			Assert.IsTrue(fullnameError.Contains("The Họ và tên field is required.") || fullnameError.Contains("Invalid input"));
-		}
+    string fullnameError = registerPage.FullNameInput.GetAttribute("validationMessage");
+    Console.WriteLine("Fullname validation message: " + fullnameError);
+    Assert.IsTrue(fullnameError.Contains("The Họ và tên field is required.") || fullnameError.Contains("Invalid input"));
+}
 
 		[Test] // Họ và tên quá dài
 		public void Register_With_TooLongFullName_Should_Fail()
