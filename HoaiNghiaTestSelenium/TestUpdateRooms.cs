@@ -16,7 +16,7 @@ namespace HoaiNghiaTestSelenium
         {
             private IWebDriver driver;
             private WebDriverWait wait;
-            private string baseUrl = "http://localhost:5000";
+            private string baseUrl = "http://localhost:5145";
 
             [SetUp]
             public void Setup()
@@ -39,7 +39,7 @@ namespace HoaiNghiaTestSelenium
                     driver.FindElement(By.Name("RememberMe")).Click();
                 }
 
-                driver.FindElement(By.Id("submit")).Click();
+                driver.FindElement(By.Id("submit-login")).Click();
             }
             [Test]
             
@@ -86,7 +86,7 @@ namespace HoaiNghiaTestSelenium
                 {
                     ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", submitButton);
                 }
-                Thread.Sleep(5000);
+                Thread.Sleep(5145);
 
                
 

@@ -16,7 +16,7 @@ namespace HoaiNghiaTestSelenium
     {
         private IWebDriver driver;
         private WebDriverWait wait;
-        private string baseUrl = "http://localhost:5000"; 
+        private string baseUrl = "http://localhost:5145"; 
 
         [SetUp]
         public void Setup()
@@ -59,7 +59,7 @@ namespace HoaiNghiaTestSelenium
             driver.FindElement(By.Id("introduce")).SendKeys("Phòng sang trọng, view đẹp");
             driver.FindElement(By.Id("description")).SendKeys("Phòng rộng rãi, tiện nghi hiện đại");
 
-            string imagePath = "G:\\Downloads - 2\\anhnhocuc.png";
+            string imagePath = "C:\\Users\\DELL\\Pictures\\flutter.png";
             if (File.Exists(imagePath))
             {
                 driver.FindElement(By.Id("imageUpload")).SendKeys(imagePath);
@@ -83,7 +83,7 @@ namespace HoaiNghiaTestSelenium
             }
 
 
-            Assert.IsTrue(driver.Url.Contains("http://localhost:5000/Admin"));
+            Assert.IsTrue(driver.Url.Contains("http://localhost:5145/Admin"));
 
         }
         [Test]
@@ -160,7 +160,7 @@ namespace HoaiNghiaTestSelenium
             Login("admin", "admin");
             driver.Navigate().GoToUrl($"{baseUrl}/Admin/RoomManager/Create");
 
-            string imagePath = "G:\\Downloads - 2\\anhnhocuc.png";
+            string imagePath = "C:\\Users\\DELL\\Pictures\\flutter.png";
 
             driver.FindElement(By.Id("name")).SendKeys("STU009");
             driver.FindElement(By.Id("floornumber")).SendKeys("3");
@@ -201,7 +201,7 @@ namespace HoaiNghiaTestSelenium
             Login("admin", "admin");
             driver.Navigate().GoToUrl($"{baseUrl}/Admin/RoomManager/Create");
 
-            string imagePath = "G:\\Downloads - 2\\anhnhocuc.png";
+            string imagePath = "C:\\Users\\DELL\\Pictures\\flutter.png";
 
             driver.FindElement(By.Id("name")).SendKeys("STU010");
             driver.FindElement(By.Id("type")).SendKeys("XYZ"); 
@@ -241,7 +241,7 @@ namespace HoaiNghiaTestSelenium
             Login("admin", "admin");
             driver.Navigate().GoToUrl($"{baseUrl}/Admin/RoomManager/Create");
 
-            string imagePath = "G:\\Downloads - 2\\anhnhocuc.png";
+            string imagePath = "C:\\Users\\DELL\\Pictures\\flutter.png";
 
             driver.FindElement(By.Id("type")).SendKeys("STD"); 
             driver.FindElement(By.Id("floornumber")).SendKeys("3");
@@ -280,7 +280,7 @@ namespace HoaiNghiaTestSelenium
             Login("admin", "admin");
             driver.Navigate().GoToUrl($"{baseUrl}/Admin/RoomManager/Create");
 
-            string imagePath = "G:\\Downloads - 2\\anhnhocuc.png";
+            string imagePath = "C:\\Users\\DELL\\Pictures\\flutter.png";
 
             WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
 
@@ -324,7 +324,7 @@ namespace HoaiNghiaTestSelenium
             Login("admin", "admin");
             driver.Navigate().GoToUrl($"{baseUrl}/Admin/RoomManager/Create");
 
-            string imagePath = "G:\\Downloads - 2\\anhnhocuc.png";
+            string imagePath = "C:\\Users\\DELL\\Pictures\\flutter.png";
 
             driver.FindElement(By.Id("name")).SendKeys("STD001");
             driver.FindElement(By.Id("type")).SendKeys("STD"); 
@@ -363,7 +363,7 @@ namespace HoaiNghiaTestSelenium
             Login("admin", "admin");
             driver.Navigate().GoToUrl($"{baseUrl}/Admin/RoomManager/Create");
 
-            string imagePath = "G:\\Downloads - 2\\anhnhocuc.png";
+            string imagePath = "C:\\Users\\DELL\\Pictures\\flutter.png";
             IWebElement uploadElement = driver.FindElement(By.Id("imageUpload"));
             uploadElement.SendKeys(imagePath);
 
@@ -406,7 +406,7 @@ namespace HoaiNghiaTestSelenium
             Login("admin", "admin");
             driver.Navigate().GoToUrl($"{baseUrl}/Admin/RoomManager/Create");
 
-            string imagePath = "G:\\Downloads - 2\\anhnhocuc.png";
+            string imagePath = "C:\\Users\\DELL\\Pictures\\flutter.png";
             IWebElement uploadElement = driver.FindElement(By.Id("imageUpload"));
             uploadElement.SendKeys(imagePath);
 
@@ -467,7 +467,7 @@ namespace HoaiNghiaTestSelenium
             Login("admin", "admin");
             driver.Navigate().GoToUrl($"{baseUrl}/Admin/RoomManager/Create");
 
-            string imagePath = "G:\\Downloads - 2\\anhnhocuc.png";
+            string imagePath = "C:\\Users\\DELL\\Pictures\\flutter.png";
             IWebElement uploadElement = driver.FindElement(By.Id("imageUpload"));
             uploadElement.SendKeys(imagePath);
 
@@ -507,7 +507,7 @@ namespace HoaiNghiaTestSelenium
             Login("admin", "admin");
             driver.Navigate().GoToUrl($"{baseUrl}/Admin/RoomManager/Create");
 
-            string imagePath = "G:\\Downloads - 2\\anhnhocuc.png";
+            string imagePath = "C:\\Users\\DELL\\Pictures\\flutter.png";
             IWebElement uploadElement = driver.FindElement(By.Id("imageUpload"));
             uploadElement.SendKeys(imagePath);
 
@@ -545,7 +545,7 @@ namespace HoaiNghiaTestSelenium
             Login("admin", "admin");
             driver.Navigate().GoToUrl($"{baseUrl}/Admin/RoomManager/Create");
 
-            string imagePath = "G:\\Downloads - 2\\anhnhocuc.png";
+            string imagePath = "C:\\Users\\DELL\\Pictures\\flutter.png";
             IWebElement uploadElement = driver.FindElement(By.Id("imageUpload"));
             uploadElement.SendKeys(imagePath);
 
@@ -594,7 +594,7 @@ namespace HoaiNghiaTestSelenium
             Login("admin", "admin");
             driver.Navigate().GoToUrl($"{baseUrl}/Admin/RoomManager/Create");
 
-            string imagePath = "G:\\Downloads - 2\\anhnhocuc.png";
+            string imagePath = "C:\\Users\\DELL\\Pictures\\flutter.png";
             IWebElement uploadElement = driver.FindElement(By.Id("imageUpload"));
             uploadElement.SendKeys(imagePath);
 
@@ -648,7 +648,7 @@ namespace HoaiNghiaTestSelenium
             Login("admin", "admin");
             driver.Navigate().GoToUrl($"{baseUrl}/Admin/RoomManager/Create");
 
-            string imagePath = "G:\\Downloads - 2\\anhnhocuc.png";
+            string imagePath = "C:\\Users\\DELL\\Pictures\\flutter.png";
             IWebElement uploadElement = driver.FindElement(By.Id("imageUpload"));
             uploadElement.SendKeys(imagePath);
 
@@ -690,7 +690,7 @@ namespace HoaiNghiaTestSelenium
             Login("admin", "admin");
             driver.Navigate().GoToUrl($"{baseUrl}/Admin/RoomManager/Create");
 
-            string imagePath = "G:\\Downloads - 2\\anhnhocuc.png";
+            string imagePath = "C:\\Users\\DELL\\Pictures\\flutter.png";
             IWebElement uploadElement = driver.FindElement(By.Id("imageUpload"));
             uploadElement.SendKeys(imagePath);
 
@@ -752,7 +752,7 @@ namespace HoaiNghiaTestSelenium
             Login("admin", "admin");
             driver.Navigate().GoToUrl($"{baseUrl}/Admin/RoomManager/Create");
 
-            string imagePath = "G:\\Downloads - 2\\anhnhocuc.png";
+            string imagePath = "C:\\Users\\DELL\\Pictures\\flutter.png";
             IWebElement uploadElement = driver.FindElement(By.Id("imageUpload"));
             uploadElement.SendKeys(imagePath);
 
@@ -786,7 +786,7 @@ namespace HoaiNghiaTestSelenium
             Login("admin", "admin");
             driver.Navigate().GoToUrl($"{baseUrl}/Admin/RoomManager/Create");
 
-            string imagePath = "G:\\Downloads - 2\\anhnhocuc.png";
+            string imagePath = "C:\\Users\\DELL\\Pictures\\flutter.png";
             IWebElement uploadElement = driver.FindElement(By.Id("imageUpload"));
             uploadElement.SendKeys(imagePath);
 
