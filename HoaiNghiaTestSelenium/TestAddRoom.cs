@@ -40,7 +40,7 @@ namespace HoaiNghiaTestSelenium
                 driver.FindElement(By.Name("RememberMe")).Click();
             }
 
-            driver.FindElement(By.Id("submit")).Click();
+            driver.FindElement(By.Id("submit-login")).Click();
         }
 
         [Test]
