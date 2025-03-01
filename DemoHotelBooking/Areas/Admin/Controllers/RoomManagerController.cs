@@ -155,6 +155,7 @@ namespace DemoHotelBooking.Areas.Admin.Controllers
             }
             return RedirectToAction ("RoomStatus", new {begin = begin, end = end});
         }
+       
         public IActionResult RoomDetail(int id)
         {
             var model = _context.Rooms.Find(id);
