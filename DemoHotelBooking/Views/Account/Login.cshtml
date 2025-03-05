@@ -3,7 +3,6 @@
     string returnUrl = ViewData["ReturnUrl"] as string;
 }
 <form asp-action="Login" asp-controller="Account" method="post" id="loginForm">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <input type="hidden" name="returnUrl" value="@returnUrl" />
     <div class="form-group">
         <label asp-for="UserName"></label>
@@ -21,6 +20,7 @@
             <label asp-for="RememberMe" class="form-check-label"></label>
         </div>
     </div>
+    <div id="message" asp-validation-summary="ModelOnly" class="text-danger"></div>
     <button id="submit-login" type="submit" class="btn btn-primary">Login</button>
 </form>
 

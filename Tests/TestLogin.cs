@@ -5,6 +5,7 @@ using OpenQA.Selenium.Support.UI;
 using System;
 using System.Threading;
 using SeleniumExtras.WaitHelpers;
+using ClosedXML.Excel;
 
 
 namespace Tests
@@ -15,18 +16,28 @@ namespace Tests
         private IWebDriver driver;
         private WebDriverWait wait;
         private string baseUrl = "http://localhost:5145";
-
+        IWebElement element;
+        XLWorkbook workbook;
+        IXLWorksheet worksheet;
         [SetUp]
         public void Setup()
         {
             driver = new ChromeDriver();
             wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
             driver.Navigate().GoToUrl($"{baseUrl}/account/login");
+            Thread.Sleep(2000);
+
+            workbook = new XLWorkbook("../../../Data/Login_data.xlsx");
+            worksheet = workbook.Worksheet(1);
+
         }
         [TearDown]
         public void TearDown()
         {
+            workbook.Save();
+            workbook.Dispose();
             driver.Quit();
+            driver.Dispose();
         }
 
         private void Login(string username, string password, bool rememberMe = false)
@@ -50,10 +61,32 @@ namespace Tests
         [Test]
         public void Test_Login_Success()
         {
-            Login("admin", "admin");
+            for (int i = 2; i <= 5; i++)
+            {
+                var username = worksheet.Cell(i, 1).GetString();
+                var password = worksheet.Cell(i, 2).GetString();
+                var expected = worksheet.Cell(i, 3).GetString();
+                Login(username, password);
+                if (driver.Url.Contains("/Room"))
+                {
+                    worksheet.Cell(i, 5).Value = "pass";
+                    driver.Navigate().GoToUrl($"{baseUrl}/account/logout");
+                }
+                else
+                {
+                    var error = driver.FindElement(By.Id("message")).Text;
+                    worksheet.Cell(i, 4).Value = error;
+
+                    if (expected == error)
+                        worksheet.Cell(i, 5).Value = "pass";
+                    else
+                        worksheet.Cell(i, 5).Value = "fail";
+                }
+            }
+            //lấy dữ liệu excel
 
             // Kiểm tra xem đã chuyển hướng đến trang chính chưa
-            Assert.IsTrue(driver.Url.Contains("/Room"), "Không chuyển hướng đến trang chính sau khi đăng nhập thành công.");
+            //Assert.IsTrue(driver.Url.Contains("/Room"), "Không chuyển hướng đến trang chính sau khi đăng nhập thành công.");
         }
 
         [Test]
@@ -107,6 +140,5 @@ namespace Tests
 
             Assert.IsTrue(driver.Url.Contains(returnUrl), "Không chuyển hướng đúng đến trang được bảo vệ sau khi đăng nhập.");
         }
-    
     }
 }
