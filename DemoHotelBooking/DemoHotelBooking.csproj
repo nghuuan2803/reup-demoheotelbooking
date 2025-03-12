@@ -5,7 +5,11 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
-
+  <ItemGroup>
+    <None Update="Data\Booking_data.xlsx">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+</ItemGroup>
   <ItemGroup>
     <Compile Remove="Data\**" />
     <Content Remove="Data\**" />
@@ -23,6 +27,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.17" />
     <PackageReference Include="RestSharp" Version="111.4.0" />
+    <PackageReference Include="SeleniumExtras.WaitHelpers" Version="1.0.2" />
   </ItemGroup>
 
   <ItemGroup>
