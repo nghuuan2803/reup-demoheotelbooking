@@ -29,6 +29,7 @@ namespace DemoHotelBooking.Areas.Admin.Controllers
                 if (room == null)
                 {
                     room = new Room();
+
                     room.Name = model.Name;
                     room.Type = model.Type;
                     room.FloorNumber = model.FloorNumber;
