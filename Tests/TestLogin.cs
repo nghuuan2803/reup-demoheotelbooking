@@ -23,6 +23,7 @@ namespace Tests
         public void Setup()
         {
             driver = new ChromeDriver();
+            driver.Manage().Window.Maximize();
             wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
             driver.Navigate().GoToUrl($"{baseUrl}/account/login");
             Thread.Sleep(2000);

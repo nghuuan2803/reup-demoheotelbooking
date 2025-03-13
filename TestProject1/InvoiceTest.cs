@@ -8,7 +8,7 @@ using SeleniumExtras.WaitHelpers;
 
 namespace DemoHotelBooking.Tests
 {
-    [TestFixture]
+    [TestFixture] 
     public class InvoiceTests
     {
         private IWebDriver driver;
@@ -23,7 +23,7 @@ namespace DemoHotelBooking.Tests
         public void SetUp()
         {
             driver = new ChromeDriver();
-            driver.Manage().Window.Maximize();
+            driver.Manage().Window.Maximize(); 
             workbook = new XLWorkbook("../../../Data/TestData_Invoice.xlsx");
             bookingWorksheet = workbook.Worksheet("BookingList");
             checkinWorksheet = workbook.Worksheet("Checkin");
