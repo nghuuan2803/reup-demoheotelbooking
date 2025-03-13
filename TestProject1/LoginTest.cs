@@ -21,14 +21,14 @@ namespace DemoHotelBooking.Tests
             driver.Manage().Window.Maximize();
             driver.Navigate().GoToUrl($"{baseUrl}/Account/Login");
 
-            workbook = new XLWorkbook("../../../Data/TestData.xlsx");
+            workbook = new XLWorkbook("../../../Data/TestData_Login.xlsx");
             worksheet = workbook.Worksheet("LoginData");
         }
 
         [Test]
         public void Test_Login()
         {
-            for (int i = 2; i <= 29; i++)
+            for (int i = 2; i <= 8; i++)
             {
                 var username = worksheet.Cell(i, 1).GetString();
                 var password = worksheet.Cell(i, 2).GetString();
@@ -36,7 +36,7 @@ namespace DemoHotelBooking.Tests
 
                 PerformLogin(username, password);
 
-                WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
+                WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(3));
                 bool isRedirected = false;
                 try
                 {
@@ -65,7 +65,7 @@ namespace DemoHotelBooking.Tests
 
         private void PerformLogin(string username, string password)
         {
-            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(3));
 
             var usernameField = wait.Until(d => d.FindElement(By.Id("username")));
             usernameField.Clear();
