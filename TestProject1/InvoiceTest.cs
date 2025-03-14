@@ -277,20 +277,61 @@ namespace DemoHotelBooking.Tests
                 js.ExecuteScript($"document.getElementById('CheckOutDate').value = '{checkoutDateFormatted}';");
                 js.ExecuteScript("arguments[0].dispatchEvent(new Event('change', { bubbles: true }));", checkoutField);
 
-                // Chọn phòng
-                var addRoomButton = wait.Until(ExpectedConditions.ElementToBeClickable(By.CssSelector($"#availbleRoomList .addRoomButton[data-room-id='{roomId}']")));
-                js.ExecuteScript("arguments[0].scrollIntoView(true);", addRoomButton);
+                // Chờ AJAX cập nhật danh sách phòng
                 try
                 {
-                    addRoomButton.Click();
+                    Console.WriteLine($"Row {i}: Đang chờ danh sách phòng cập nhật...");
+                    wait.Until(ExpectedConditions.ElementIsVisible(By.Id("availbleRoomList")));
+                    // Chờ nút Add Room xuất hiện sau AJAX
+                    wait.Until(ExpectedConditions.ElementExists(By.CssSelector($"#availbleRoomList .addRoomButton[data-room-id='{roomId}']")));
+                    Console.WriteLine($"Row {i}: Danh sách phòng đã cập nhật.");
                 }
-                catch (ElementClickInterceptedException)
+                catch (WebDriverTimeoutException ex)
                 {
-                    js.ExecuteScript("arguments[0].click();", addRoomButton);
+                    Console.WriteLine($"Row {i}: Không tìm thấy danh sách phòng hoặc nút Add Room. Lỗi: {ex.Message}");
+                    fullInvoiceWorksheet.Cell(i, 7).Value = $"Failed: Room list or room {roomId} not found";
+                    fullInvoiceWorksheet.Cell(i, 8).Value = "Fail";
+                    continue;
+                }
+
+                // Chọn phòng
+                try
+                {
+                    var addRoomButton = wait.Until(ExpectedConditions.ElementToBeClickable(By.CssSelector($"#availbleRoomList .addRoomButton[data-room-id='{roomId}']")));
+                    js.ExecuteScript("arguments[0].scrollIntoView({ behavior: 'smooth', block: 'center' });", addRoomButton);
+                    Thread.Sleep(500); // Đợi cuộn hoàn tất
+                    try
+                    {
+                        addRoomButton.Click();
+                        Console.WriteLine($"Row {i}: Đã nhấp vào nút Add Room cho roomId={roomId}");
+                    }
+                    catch (ElementClickInterceptedException)
+                    {
+                        js.ExecuteScript("arguments[0].click();", addRoomButton);
+                        Console.WriteLine($"Row {i}: Đã nhấp bằng JS vào nút Add Room cho roomId={roomId}");
+                    }
+                }
+                catch (WebDriverTimeoutException ex)
+                {
+                    Console.WriteLine($"Row {i}: Không thể chọn phòng với roomId={roomId}. Lỗi: {ex.Message}");
+                    fullInvoiceWorksheet.Cell(i, 7).Value = $"Failed: Room {roomId} not clickable";
+                    fullInvoiceWorksheet.Cell(i, 8).Value = "Fail";
+                    continue;
                 }
 
                 // Chờ phòng được thêm
-                wait.Until(d => d.FindElement(By.CssSelector($"#roomListContainer .removeRoomButton[data-room-id='{roomId}']")).Displayed);
+                try
+                {
+                    wait.Until(d => d.FindElement(By.CssSelector($"#roomListContainer .removeRoomButton[data-room-id='{roomId}']")).Displayed);
+                    Console.WriteLine($"Row {i}: Phòng với roomId={roomId} đã được thêm.");
+                }
+                catch (WebDriverTimeoutException ex)
+                {
+                    Console.WriteLine($"Row {i}: Phòng không được thêm. Lỗi: {ex.Message}");
+                    fullInvoiceWorksheet.Cell(i, 7).Value = $"Failed: Room {roomId} not added";
+                    fullInvoiceWorksheet.Cell(i, 8).Value = "Fail";
+                    continue;
+                }
 
                 // Gửi form đặt phòng
                 var submitButton = wait.Until(ExpectedConditions.ElementToBeClickable(By.Id("submit-booking")));
