@@ -62,6 +62,10 @@ namespace DemoHotelBooking.Controllers
             if (!(bk.Status == 1 || bk.Status == 2))
                 return RedirectToAction("BookingList");
             var inv = _context.Invoices.FirstOrDefault(i => i.BookingId == id);
+
+            if (inv.Booking.CheckinDate.Date != DateTime.Today)
+                return RedirectToAction("BookingList");
+
             if (inv != null) return NotFound();
             var Receptionist = await _userManager.GetUserAsync(HttpContext.User);
             if (Receptionist == null)
@@ -174,8 +178,14 @@ namespace DemoHotelBooking.Controllers
         [HttpPost]
         public async Task<IActionResult> Checkout(int id, int paymethod)
         {
-            var iv = _context.Invoices.Find(id);
+            var iv = await _context.Invoices.Include(p=>p.Booking).FirstOrDefaultAsync(p=>p.Id==id);
+
             if (iv == null) return NotFound();
+
+            if(iv.Booking.CheckoutDate.Date != DateTime.Today.Date)
+            {
+                return RedirectToAction("InvoiceDetail", new { id = id, message = "Hóa đơn đã quá hạn thanh toán" });
+            }
             if (paymethod == 0)
             {
                 iv.PayMethod = 0;
@@ -186,7 +196,6 @@ namespace DemoHotelBooking.Controllers
                 return RedirectToAction("InvoiceDetail", new { id = id, message = "Thanh toán thành công" });
             }
             string redirectUrl;
-            iv.Booking = _context.Bookings.Find(iv.BookingId);
             iv.Booking.Customer = _context.Users.Find(iv.Booking.CusID);
             //var vnPayModel = new VnPaymentRequestModel()
             //{
@@ -305,7 +314,7 @@ namespace DemoHotelBooking.Controllers
             }
             //lấy thông tin đặt phòng từ viewmodel
             string[] rs = response.OrderInfo.Split(':');
-            int id = int.Parse(rs[rs.Length-1]);
+            int id = int.Parse(rs[rs.Length - 1]);
             var iv = _context.Invoices.Find(id);
             iv.Status = 3;
             iv.PaymentDate = DateTime.Now;
