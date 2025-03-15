@@ -10,7 +10,7 @@ using NUnit.Framework;
 using SeleniumExtras.WaitHelpers;
 
 namespace SeleniumTest
-{
+{ 
     [TestFixture]
     public class Test_Booking
     {
@@ -24,7 +24,8 @@ namespace SeleniumTest
         public void Setup()
         {
             driver = new ChromeDriver();
-            wait = new WebDriverWait(driver, TimeSpan.FromSeconds(30)); // Tăng thời gian chờ lên 30 giây
+            driver.Manage().Window.Maximize();
+            wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10)); // Tăng thời gian chờ lên 30 giây
             driver.Navigate().GoToUrl(baseUrl);
             Console.WriteLine("Thư mục làm việc hiện tại: " + Directory.GetCurrentDirectory());
         }
@@ -33,9 +34,8 @@ namespace SeleniumTest
         public void TearDown()
         {
             driver.Quit();
-            driver.Dispose();
-        }
-
+            driver.Dispose(); 
+        } 
         private void Login(string username, string password, bool rememberMe = false)
         {
             driver.Navigate().GoToUrl($"{baseUrl}/Account/Login");
@@ -831,7 +831,7 @@ namespace SeleniumTest
                     Console.WriteLine($"Bỏ qua ngoại lệ sau khi test đã hoàn thành: {ex.Message}");
                 }
             }
-        }
+        }  
 
         [Test]
         public void Test_Booking_Many_Room()
@@ -1104,11 +1104,5 @@ namespace SeleniumTest
                 }
             }
         }
-
-        [Test]
-        public void Test_Price_For_Booking()
-        {
-
-        }
     }
-}
+}  

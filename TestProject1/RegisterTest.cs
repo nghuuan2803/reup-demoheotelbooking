@@ -23,7 +23,7 @@ namespace DemoHotelBooking.Tests
             driver.Navigate().GoToUrl($"{baseUrl}/Account/Register");
 
             // Khởi tạo workbook và worksheet từ file Excel
-            workbook = new XLWorkbook("../../../Data/TestData.xlsx");
+            workbook = new XLWorkbook("../../../Data/TestData_Register.xlsx");
             worksheet = workbook.Worksheet("RegisterData");
         }
 

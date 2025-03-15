@@ -23,8 +23,8 @@ namespace SeleniumTest
         {
             // Khởi tạo driver
             driver = new ChromeDriver();
-            wait = new WebDriverWait(driver, TimeSpan.FromSeconds(60)); // Tăng thời gian chờ lên 60 giây
-            driver.Manage().Window.Size = new System.Drawing.Size(1200, 800); // Đảm bảo chiều rộng > 992px
+            driver.Manage().Window.Maximize();
+            wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10)); 
         }
 
         [TearDown]
@@ -60,7 +60,7 @@ namespace SeleniumTest
         // Đọc dữ liệu từ sheet Test_Booking_And_Verify_Info
         private List<Dictionary<string, string>> ReadTestDataFromExcel()
         {
-            string excelPath = @"C:\Users\phand\OneDrive\Documents\ĐBCLPM\reup-demoheotelbooking\Tests\Data\Booking_data.xlsx";
+            string excelPath = "../../../Data/Booking_data.xlsx";
             using (var workbook = new XLWorkbook(excelPath))
             {
                 var worksheet = workbook.Worksheet("Test_Booking_And_Verify_Info");
@@ -99,7 +99,7 @@ namespace SeleniumTest
         // Ghi kết quả vào sheet Test_Booking_And_Verify_Info
         private void WriteTestResultToExcel(string testCase, string infoBooking, string infoTest, string actualUrl)
         {
-            string excelPath = @"C:\Users\phand\OneDrive\Documents\ĐBCLPM\reup-demoheotelbooking\Tests\Data\Booking_data.xlsx";
+            string excelPath = "../../../Data/Booking_data.xlsx";
             using (var workbook = new XLWorkbook(excelPath))
             {
                 var worksheet = workbook.Worksheet("Test_Booking_And_Verify_Info");

@@ -4,9 +4,11 @@ namespace DemoHotelBooking.Models
 {
     public class Room
     {
+
         [Key]
-        public int Id { get; set; } 
+        public int Id { get; set; }
         [Display(Name = "Mã phòng")]
+        [Required(ErrorMessage = "Mã phòng bắt buộc phải nhập ")]
         public string Name { get; set; } //mã phòng (STD..., SUP..., DLX..., SUT) 
 
         [Display(Name = "Loại phòng")]
@@ -32,3 +34,4 @@ namespace DemoHotelBooking.Models
         public int MAP { get; set; } // Maximum Amount of people (Số người tối đa)
     }
 }
+
