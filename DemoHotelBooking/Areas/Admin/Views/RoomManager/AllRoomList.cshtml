@@ -58,7 +58,7 @@
                     <a class="text-warning" asp-area="Admin" asp-controller="RoomManager" asp-action="Update" asp-route-id="@item.Id">Cập nhật</a>
                 </td>
                 <td>
-                    <a class="text-warning" asp-area="Admin" asp-controller="RoomManager" asp-action="Delete" asp-route-id="@item.Id">Xóa</a>
+                    <a class="text-warning" id="del-@item.Id" asp-area="Admin" asp-controller="RoomManager" asp-action="Delete" asp-route-id="@item.Id">Xóa</a>
                 </td>
             </tr>
         }

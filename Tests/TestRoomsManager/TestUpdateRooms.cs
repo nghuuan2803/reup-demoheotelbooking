@@ -49,7 +49,7 @@ public class TestUpdateRooms
     {
         // Đăng nhập với quyền Admin
         Login("admin", "admin");
-        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/RoomManager/Update/171");
+        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/RoomManager/Update/20");
         // Ví dụ duyệt qua 1 dòng (i=2); nếu cần test nhiều dòng thì điều chỉnh vòng lặp.
         for (int i = 2; i <= 2; i++)
         {
@@ -141,7 +141,7 @@ public class TestUpdateRooms
     {
 
         Login("admin", "admin");
-        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/RoomManager/Update/171");
+        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/RoomManager/Update/20");
         // Ví dụ duyệt qua 1 dòng (i=2); nếu cần test nhiều dòng thì điều chỉnh vòng lặp.
         for (int i = 3; i <= 3; i++)
         {
@@ -233,7 +233,7 @@ public class TestUpdateRooms
     {
 
         Login("admin", "admin");
-        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/RoomManager/Update/171");
+        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/RoomManager/Update/20");
         // Ví dụ duyệt qua 1 dòng (i=2); nếu cần test nhiều dòng thì điều chỉnh vòng lặp.
         for (int i = 4; i <= 4; i++)
         {
@@ -325,7 +325,7 @@ public class TestUpdateRooms
     {
 
         Login("admin", "admin");
-        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/RoomManager/Update/171");
+        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/RoomManager/Update/20");
         // Ví dụ duyệt qua 1 dòng (i=2); nếu cần test nhiều dòng thì điều chỉnh vòng lặp.
         for (int i = 5; i <= 5; i++)
         {
@@ -417,7 +417,7 @@ public class TestUpdateRooms
     {
 
         Login("admin", "admin");
-        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/RoomManager/Update/171");
+        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/RoomManager/Update/20");
         // Ví dụ duyệt qua 1 dòng (i=2); nếu cần test nhiều dòng thì điều chỉnh vòng lặp.
         for (int i = 6; i <= 6; i++)
         {
@@ -509,7 +509,7 @@ public class TestUpdateRooms
     {
 
         Login("admin", "admin");
-        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/RoomManager/Update/171");
+        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/RoomManager/Update/20");
         // Ví dụ duyệt qua 1 dòng (i=2); nếu cần test nhiều dòng thì điều chỉnh vòng lặp.
         for (int i = 7; i <= 7; i++)
         {
@@ -601,7 +601,7 @@ public class TestUpdateRooms
     {
 
         Login("admin", "admin");
-        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/RoomManager/Update/171");
+        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/RoomManager/Update/20");
         // Ví dụ duyệt qua 1 dòng (i=2); nếu cần test nhiều dòng thì điều chỉnh vòng lặp.
         for (int i = 8; i <= 8; i++)
         {
@@ -692,7 +692,7 @@ public class TestUpdateRooms
     public void UpdatePrice()
     {
         Login("admin", "admin");
-        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/RoomManager/Update/171");
+        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/RoomManager/Update/20");
         for (int i = 9; i <= 13; i++)
         {
             var name = worksheet.Cell(i, 2).GetString();
@@ -786,7 +786,7 @@ public class TestUpdateRooms
             }
 
             // Điều hướng lại trang để thêm phòng mới
-            driver.Navigate().GoToUrl($"http://localhost:5145/Admin/RoomManager/Update/171");
+            driver.Navigate().GoToUrl($"http://localhost:5145/Admin/RoomManager/Update/20");
             workbook.Save();
 
         }
@@ -797,7 +797,7 @@ public class TestUpdateRooms
     public void TestPeople()
     {
         Login("admin", "admin");
-        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/RoomManager/Update/171");
+        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/RoomManager/Update/20");
         for (int i = 14; i <= 18; i++)
         {
             var name = worksheet.Cell(i, 2).GetString();
@@ -891,7 +891,7 @@ public class TestUpdateRooms
             }
 
             // Điều hướng lại trang để thêm phòng mới
-            driver.Navigate().GoToUrl($"http://localhost:5145/Admin/RoomManager/Update/171");
+            driver.Navigate().GoToUrl($"http://localhost:5145/Admin/RoomManager/Update/20");
             workbook.Save();
 
         }
@@ -900,7 +900,7 @@ public class TestUpdateRooms
     public void TestRoomMaxPeopleConstraints()
     {
         Login("admin", "admin");
-        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/RoomManager/Update/171");
+        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/RoomManager/Update/20");
         for (int i = 19; i <= 22; i++)
         {
             var name = worksheet.Cell(i, 2).GetString();
@@ -994,7 +994,7 @@ public class TestUpdateRooms
             }
 
             // Điều hướng lại trang để thêm phòng mới
-            driver.Navigate().GoToUrl($"http://localhost:5145/Admin/RoomManager/Update/171");
+            driver.Navigate().GoToUrl($"http://localhost:5145/Admin/RoomManager/Update/20");
             workbook.Save();
 
         }
