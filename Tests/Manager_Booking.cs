@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using ClosedXML.Excel;
 using NUnit.Framework;
 using SeleniumExtras.WaitHelpers;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SeleniumTest
 {
@@ -24,10 +25,8 @@ namespace SeleniumTest
         {
             // Khởi tạo driver
             driver = new ChromeDriver();
-            wait = new WebDriverWait(driver, TimeSpan.FromSeconds(30)); // Tăng thời gian chờ lên 30 giây
-
-            // Đặt kích thước cửa sổ trình duyệt để hiển thị element d-lg-block
-            driver.Manage().Window.Size = new System.Drawing.Size(1200, 800); // Đảm bảo chiều rộng > 992px
+            driver.Manage().Window.Maximize();
+            wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5)); // Tăng thời gian chờ lên 30 giây
         }
 
         [TearDown]
@@ -35,7 +34,7 @@ namespace SeleniumTest
         {
             driver.Quit();
         }
-
+        
         private void Login(string username, string password, bool rememberMe = false)
         {
             driver.Navigate().GoToUrl($"{baseUrl}/Account/Login");
@@ -48,7 +47,7 @@ namespace SeleniumTest
         // Đọc dữ liệu từ sheet Manager_Booking
         private Dictionary<string, string> ReadTestDataFromExcel(string sheetName)
         {
-            string excelPath = @"C:\Users\phand\OneDrive\Documents\ĐBCLPM\reup-demoheotelbooking\Tests\Data\Booking_data.xlsx";
+            string excelPath = "../../../Data/Booking_data.xlsx";
             using (var workbook = new XLWorkbook(excelPath))
             {
                 var worksheet = workbook.Worksheet(sheetName);
@@ -80,7 +79,7 @@ namespace SeleniumTest
         // Ghi kết quả vào sheet Manager_Booking
         private void WriteTestResultToExcel(string testCase, string actualResult, string actualUrl)
         {
-            string excelPath = @"C:\Users\phand\OneDrive\Documents\ĐBCLPM\reup-demoheotelbooking\Tests\Data\Booking_data.xlsx";
+            string excelPath = "../../../Data/Booking_data.xlsx";
             using (var workbook = new XLWorkbook(excelPath))
             {
                 var worksheet = workbook.Worksheet("Manager_Booking");
@@ -205,7 +204,7 @@ namespace SeleniumTest
                 // Chờ trang danh sách đặt phòng tải
                 wait.Until(d => d.Url.Contains("/invoice/bookinglist"));
                 Console.WriteLine($"URL danh sách đặt phòng: {driver.Url}");
-
+                
                 // 4. Lấy thông tin của phòng cuối cùng trong danh sách
                 IWebElement table = wait.Until(ExpectedConditions.ElementExists(By.CssSelector("table.table")));
                 IList<IWebElement> rows = table.FindElements(By.CssSelector("tbody tr"));

@@ -1,5 +1,6 @@
 ﻿using ClosedXML.Excel;
 using DocumentFormat.OpenXml.Bibliography;
+using DocumentFormat.OpenXml.Spreadsheet;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
@@ -896,7 +897,7 @@ public class TestAddRooms
             }
             else
             {
-                elements[0].SendKeys("C:\\Users\\phn40\\OneDrive\\Pictures\\Group 1.png");
+                elements[0].SendKeys("C:\\Users\\admin\\Pictures\\Group1.png");
             }
 
             // Chờ các phần tử trong form sẵn sàng
@@ -1184,7 +1185,7 @@ public class TestAddRooms
             }
             else
             {
-                elements[0].SendKeys("C:\\Users\\phn40\\OneDrive\\Pictures\\Group 1.png");
+                elements[0].SendKeys("C:\\Users\\admin\\Pictures\\Group1.png");
             }
 
             // Chờ các phần tử trong form sẵn sàng
@@ -1280,7 +1281,7 @@ public class TestAddRooms
             }
             else
             {
-                elements[0].SendKeys("C:\\Users\\phn40\\OneDrive\\Pictures\\Group 1.png");
+                elements[0].SendKeys("C:\\Users\\admin\\Pictures\\Group1.png");
             }
 
             // Chờ các phần tử trong form sẵn sàng
@@ -1376,7 +1377,7 @@ public class TestAddRooms
             }
             else
             {
-                elements[0].SendKeys("C:\\Users\\phn40\\OneDrive\\Pictures\\Group 1.png");
+                elements[0].SendKeys("C:\\Users\\admin\\Pictures\\Group1.png");
             }
 
             // Chờ các phần tử trong form sẵn sàng
@@ -1472,7 +1473,7 @@ public class TestAddRooms
             }
             else
             {
-                elements[0].SendKeys("C:\\Users\\phn40\\OneDrive\\Pictures\\Group 1.png");
+                elements[0].SendKeys("C:\\Users\\admin\\Pictures\\Group1.png");
             }
 
             // Chờ các phần tử trong form sẵn sàng
@@ -1820,7 +1821,7 @@ public class TestAddRooms
             }
             else
             {
-                elements[0].SendKeys("C:\\Users\\phn40\\OneDrive\\Pictures\\Group 1.png");
+                elements[0].SendKeys("C:\\Users\\admin\\Pictures\\Group1.png");
             }
 
             WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
@@ -3771,7 +3772,7 @@ public class TestAddRooms
             }
             else
             {
-                elements[0].SendKeys("C:\\Users\\phn40\\OneDrive\\Pictures\\Group 1.png");
+                elements[0].SendKeys("C:\\Users\\admin\\Pictures\\Group1.png");
             }
 
             try
@@ -3868,7 +3869,7 @@ public class TestAddRooms
             }
             else
             {
-                elements[0].SendKeys("C:\\Users\\phn40\\OneDrive\\Pictures\\Group 1.png");
+                elements[0].SendKeys("C:\\Users\\admin\\Pictures\\Group1.png");
             }
 
             try
