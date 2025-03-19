@@ -32,6 +32,10 @@ namespace SeleniumTest
             Console.WriteLine("Thư mục làm việc hiện tại: " + Directory.GetCurrentDirectory());
         }
 
+
+
+
+
         [TearDown]
         public void TearDown()
         {
