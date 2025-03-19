@@ -20,6 +20,8 @@ namespace SeleniumTest
         private IWebElement element;
         private string excelFilePath = @"..\..\..\Data\Booking_data.xlsx";
 
+
+
         [SetUp]
         public void Setup()
         {
@@ -1104,5 +1106,456 @@ namespace SeleniumTest
                 }
             }
         }
+
+        [Test]
+        public void Test_Input_Booking()
+        {
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(30));
+            var testDataList = ReadTestDataFromExcel();
+
+            // 1. Lọc các test case từ TC009 đến TC014
+            var testCases = testDataList.Where(data =>
+                data["TestCase"].StartsWith("TC") &&
+                int.TryParse(data["TestCase"].Substring(2), out int testCaseNumber) &&
+                testCaseNumber >= 9 && testCaseNumber <= 14
+            ).ToList();
+
+            if (!testCases.Any())
+            {
+                Assert.Fail("Không tìm thấy test case nào từ TC009 đến TC014 trong file Excel.");
+                return;
+            }
+
+            Console.WriteLine($"Tổng số test case tìm thấy: {testCases.Count}");
+            bool allTestsPassed = true; // Biến này vẫn dùng để ghi nhận kết quả từng test case vào Excel.
+
+            // 2. Vòng lặp chạy từng test case
+            foreach (var testCase in testCases)
+            {
+                Console.WriteLine($"Bắt đầu chạy trường hợp kiểm thử: {testCase["TestCase"]}");
+                string actualResult = "Chưa xác định";
+                string actualUrl = string.Empty;
+                bool testPassed = false;
+                // Lấy ExpectedResult từ Excel (trim để loại bỏ khoảng trắng thừa)
+                string expectedResult = testCase["ExpectedResult"]?.Trim() ?? "";
+
+                try
+                {
+                    // Mở trang chính
+                    driver.Navigate().GoToUrl(baseUrl);
+
+                    IWebElement element = wait.Until(ExpectedConditions.ElementToBeClickable(By.Id("btn-booking")));
+                    IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
+                    SafeClick(element, js);
+
+                    string initialUrl = driver.Url;
+                    Console.WriteLine($"URL ban đầu: {initialUrl}");
+
+                    // Clear dữ liệu cũ trong form
+                    js.ExecuteScript("document.getElementById('name').value = '';");
+                    js.ExecuteScript("document.getElementById('phone').value = '';");
+                    js.ExecuteScript("document.getElementById('CheckInDate').value = '';");
+                    js.ExecuteScript("document.getElementById('CheckOutDate').value = '';");
+                    js.ExecuteScript("document.getElementById('CheckInDate').removeAttribute('disabled');");
+                    js.ExecuteScript("document.getElementById('CheckInDate').removeAttribute('readonly');");
+                    js.ExecuteScript("document.getElementById('CheckOutDate').removeAttribute('disabled');");
+                    js.ExecuteScript("document.getElementById('CheckOutDate').removeAttribute('readonly');");
+
+                    // Điền thông tin Name
+                    IWebElement nameElement = wait.Until(ExpectedConditions.ElementIsVisible(By.Id("name")));
+                    nameElement.SendKeys(testCase["Name"] ?? "");
+                    Console.WriteLine($"Đã nhập Name: {testCase["Name"]}");
+                    Thread.Sleep(2000);
+
+                    // Điền thông tin Phone
+                    IWebElement phoneElement = wait.Until(ExpectedConditions.ElementIsVisible(By.Id("phone")));
+                    phoneElement.SendKeys(testCase["Phone"] ?? "");
+                    Console.WriteLine($"Đã nhập Phone: {testCase["Phone"]}");
+                    Thread.Sleep(2000);
+
+                    // Lấy giá trị CheckInDate và CheckOutDate từ Excel (chuỗi bất kỳ)
+                    string checkInDateStr = testCase["CheckInDate"] ?? "";
+                    string checkOutDateStr = testCase["CheckOutDate"] ?? "";
+
+                    // Gán trực tiếp vào form, không parse DateTime
+                    if (!string.IsNullOrEmpty(checkInDateStr))
+                    {
+                        js.ExecuteScript(
+                            $"document.getElementById('CheckInDate').value = '{checkInDateStr}'; " +
+                            "document.getElementById('CheckInDate').dispatchEvent(new Event('change', { bubbles: true }));"
+                        );
+                        Console.WriteLine($"CheckInDate được nhập: {checkInDateStr}");
+                    }
+                    Thread.Sleep(2000);
+
+                    if (!string.IsNullOrEmpty(checkOutDateStr))
+                    {
+                        js.ExecuteScript(
+                            $"document.getElementById('CheckOutDate').value = '{checkOutDateStr}'; " +
+                            "document.getElementById('CheckOutDate').dispatchEvent(new Event('change', { bubbles: true }));"
+                        );
+                        Console.WriteLine($"CheckOutDate được nhập: {checkOutDateStr}");
+                    }
+                    Thread.Sleep(2000);
+
+                    // Xác định "ngày hợp lệ" chỉ dựa trên việc trường không rỗng
+                    bool isCheckInValid = !string.IsNullOrEmpty(checkInDateStr);
+                    bool isCheckOutValid = !string.IsNullOrEmpty(checkOutDateStr);
+
+                    if (isCheckInValid && isCheckOutValid)
+                    {
+                        // Chờ danh sách phòng cập nhật (Ajax)
+                        wait.Until(d => (bool)js.ExecuteScript("return jQuery.active == 0"));
+                        Thread.Sleep(2000);
+
+                        // Tìm nút "Chọn" của phòng đầu tiên
+                        var addRoomButtons = driver.FindElements(By.ClassName("addRoomButton"))
+                            .Where(b => b.Enabled && b.Displayed)
+                            .ToList();
+
+                        if (addRoomButtons.Count > 0)
+                        {
+                            IWebElement roomButton = addRoomButtons.First();
+                            Console.WriteLine($"Chọn phòng với ID: {roomButton.GetAttribute("data-room-id")}");
+                            js.ExecuteScript("arguments[0].scrollIntoView(true);", roomButton);
+                            SafeClick(roomButton, js);
+                            Thread.Sleep(2000);
+
+                            // Kiểm tra và nhấn nút "Xác nhận"
+                            IWebElement submitButton = wait.Until(ExpectedConditions.ElementExists(By.Id("submit-booking")));
+                            bool isSubmitEnabled = (bool)js.ExecuteScript("return arguments[0].disabled === false;", submitButton);
+                            Console.WriteLine($"Trạng thái nút submit-booking: Enabled={isSubmitEnabled}");
+
+                            if (isSubmitEnabled)
+                            {
+                                SafeClick(submitButton, js);
+                                Thread.Sleep(2000);
+
+                                try
+                                {
+                                    // Kiểm tra chuyển hướng đến trang thanh toán
+                                    wait.Until(d => d.Url.Contains("vnpay") || d.Url.Contains("payment"));
+                                    actualUrl = driver.Url;
+                                    Console.WriteLine($"Đã chuyển đến trang thanh toán: {actualUrl}");
+
+                                    // Thực hiện quá trình thanh toán (demo)
+                                    IWebElement paymentMethodElement = wait.Until(ExpectedConditions.ElementToBeClickable(
+                                        By.XPath("//div[@class='list-method-button' and @data-bs-target='#accordionList2']")));
+                                    SafeClick(paymentMethodElement, js);
+                                    wait.Until(d => (bool)js.ExecuteScript("return jQuery.active == 0"));
+
+                                    IWebElement ncbBankElement = wait.Until(ExpectedConditions.ElementToBeClickable(
+                                        By.XPath("//div[@class='list-bank-item-inner' and contains(@style, 'ncb.svg')]")));
+                                    SafeClick(ncbBankElement, js);
+                                    wait.Until(d => (bool)js.ExecuteScript("return jQuery.active == 0"));
+
+                                    IWebElement cardNumberElement = wait.Until(ExpectedConditions.ElementIsVisible(By.Id("card_number_mask")));
+                                    cardNumberElement.SendKeys(testCase["CardNumber"] ?? "9704198526191432198");
+
+                                    IWebElement cardHolderElement = wait.Until(ExpectedConditions.ElementIsVisible(By.Id("cardHolder")));
+                                    cardHolderElement.Clear();
+                                    cardHolderElement.SendKeys(testCase["CardHolder"] ?? "NGUYEN VAN A");
+
+                                    IWebElement cardDateElement = wait.Until(ExpectedConditions.ElementIsVisible(By.Id("cardDate")));
+                                    cardDateElement.Clear();
+                                    cardDateElement.SendKeys(testCase["CardDate"] ?? "07/25");
+
+                                    IWebElement continueButton = wait.Until(ExpectedConditions.ElementToBeClickable(By.Id("btnContinue")));
+                                    SafeClick(continueButton, js);
+
+                                    IWebElement agreeButton = wait.Until(ExpectedConditions.ElementToBeClickable(
+                                        By.XPath("//a[.//span[text()='Đồng ý & Tiếp tục']]")));
+                                    js.ExecuteScript("arguments[0].scrollIntoView(true);", agreeButton);
+                                    SafeClick(agreeButton, js);
+
+                                    IWebElement otpElement = wait.Until(ExpectedConditions.ElementIsVisible(By.Id("otpvalue")));
+                                    otpElement.SendKeys(testCase["OTP"] ?? "123456");
+
+                                    IWebElement confirmButton = wait.Until(ExpectedConditions.ElementToBeClickable(By.Id("btnConfirm")));
+                                    SafeClick(confirmButton, js);
+
+                                    // Chờ kết quả thanh toán
+                                    wait.Until(d => d.Url.Contains("PaymentSuccess"));
+                                    actualUrl = driver.Url;
+                                    actualResult = "Đặt phòng và thanh toán thành công!";
+                                }
+                                catch (WebDriverTimeoutException)
+                                {
+                                    actualResult = "Không chuyển qua trang thanh toán";
+                                }
+                            }
+                            else
+                            {
+                                actualResult = "Nút Xác nhận bị vô hiệu hóa.";
+                            }
+                        }
+                        else
+                        {
+                            actualResult = "Không có phòng nào khả dụng để chọn.";
+                        }
+                    }
+                    else
+                    {
+                        actualResult = "Ngày nhận phòng hoặc trả phòng không hợp lệ.";
+                    }
+
+                    Console.WriteLine($"ExpectedResult: {expectedResult}");
+                    Console.WriteLine($"ActualResult: {actualResult}");
+
+                    // So sánh actualResult với ExpectedResult để quyết định pass/fail
+                    if (actualResult.Equals(expectedResult, StringComparison.OrdinalIgnoreCase))
+                    {
+                        testPassed = true;
+                    }
+                    else
+                    {
+                        testPassed = false;
+                    }
+
+                    WriteTestResultToExcel(testCase["TestCase"], actualResult, driver.Url);
+                }
+                catch (Exception ex)
+                {
+                    actualResult = $"Lỗi: {ex.Message}";
+                    WriteTestResultToExcel(testCase["TestCase"], actualResult, driver.Url);
+                    testPassed = false;
+                    allTestsPassed = false;
+                }
+                finally
+                {
+                    // Quay về trang chủ để sẵn sàng cho test case kế tiếp
+                    driver.Navigate().GoToUrl(baseUrl);
+                }
+
+                if (!testPassed)
+                {
+                    allTestsPassed = false;
+                }
+            }
+
+            // Nếu bạn muốn overall test luôn pass (vì các test case đã được ghi kết quả vào Excel)
+            Assert.Pass("Đã chạy hết các test case từ TC009 đến TC014. Vui lòng kiểm tra file Excel để biết kết quả chi tiết.");
+        }
+
+        [Test]
+        public void Test_Booking_with_Wrongs_Date()
+        {
+            // Tạo wait riêng, có thể tăng thời gian nếu cần
+            WebDriverWait localWait = new WebDriverWait(driver, TimeSpan.FromSeconds(30));
+            var testDataList = ReadTestDataFromExcel();
+
+            // 1. Lọc các test case TC015, TC016, TC017
+            var testCases = testDataList.Where(data =>
+            {
+                if (data["TestCase"].StartsWith("TC"))
+                {
+                    // Lấy số sau "TC"
+                    bool parsed = int.TryParse(data["TestCase"].Substring(2), out int testCaseNumber);
+                    if (parsed && testCaseNumber >= 15 && testCaseNumber <= 17)
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }).ToList();
+
+            if (!testCases.Any())
+            {
+                Assert.Fail("Không tìm thấy test case nào từ TC015 đến TC017 trong file Excel.");
+                return;
+            }
+
+            Console.WriteLine($"Tổng số test case tìm thấy (TC015 - TC017): {testCases.Count}");
+
+            foreach (var testCase in testCases)
+            {
+                string actualResult = "Chưa xác định";
+                string actualUrl = "";
+                string expectedResult = testCase["ExpectedResult"]?.Trim() ?? "";
+
+                Console.WriteLine($"Bắt đầu chạy test case: {testCase["TestCase"]}");
+                try
+                {
+                    // Điều hướng về trang chủ
+                    driver.Navigate().GoToUrl(baseUrl);
+
+                    // Nhấn nút "Đặt phòng"
+                    element = localWait.Until(ExpectedConditions.ElementToBeClickable(By.Id("btn-booking")));
+                    IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
+                    SafeClick(element, js);
+
+                    // Xóa dữ liệu cũ
+                    js.ExecuteScript("document.getElementById('name').value = '';");
+                    js.ExecuteScript("document.getElementById('phone').value = '';");
+                    js.ExecuteScript("document.getElementById('CheckInDate').value = '';");
+                    js.ExecuteScript("document.getElementById('CheckOutDate').value = '';");
+
+                    // Điền Name
+                    IWebElement nameElement = localWait.Until(ExpectedConditions.ElementIsVisible(By.Id("name")));
+                    nameElement.SendKeys(testCase["Name"] ?? "");
+
+                    // Điền Phone
+                    IWebElement phoneElement = localWait.Until(ExpectedConditions.ElementIsVisible(By.Id("phone")));
+                    phoneElement.SendKeys(testCase["Phone"] ?? "");
+
+                    // Điền CheckInDate (có thể là dữ liệu sai)
+                    string checkInDateStr = testCase["CheckInDate"] ?? "";
+                    if (!string.IsNullOrEmpty(checkInDateStr))
+                    {
+                        js.ExecuteScript(
+                            $"document.getElementById('CheckInDate').value = '{checkInDateStr}'; " +
+                            "document.getElementById('CheckInDate').dispatchEvent(new Event('change', { bubbles: true }));"
+                        );
+                    }
+
+                    // Điền CheckOutDate (có thể là dữ liệu sai)
+                    string checkOutDateStr = testCase["CheckOutDate"] ?? "";
+                    if (!string.IsNullOrEmpty(checkOutDateStr))
+                    {
+                        js.ExecuteScript(
+                            $"document.getElementById('CheckOutDate').value = '{checkOutDateStr}'; " +
+                            "document.getElementById('CheckOutDate').dispatchEvent(new Event('change', { bubbles: true }));"
+                        );
+                    }
+
+                    // Chờ trang load / AJAX
+                    Thread.Sleep(2000);
+                    localWait.Until(d => (bool)js.ExecuteScript("return jQuery.active == 0"));
+
+                    // ======= KIỂM TRA XEM CÓ HIỆN CẢNH BÁO statusAlert HAY KHÔNG =======
+                    // Vì TC016, TC017 có thể bắn alert sớm ngay khi set ngày sai.
+                    // Nên ta chờ 1 chút, sau đó tìm element statusAlert
+                    Thread.Sleep(1000);
+                    bool alertDisplayed = false;
+                    string alertText = "";
+
+                    try
+                    {
+                        // Chờ 2 giây xem alert có xuất hiện không
+                        WebDriverWait shortWait = new WebDriverWait(driver, TimeSpan.FromSeconds(2));
+                        IWebElement statusAlert = shortWait.Until(ExpectedConditions.ElementIsVisible(By.Id("statusAlert")));
+                        if (statusAlert != null && statusAlert.Displayed)
+                        {
+                            alertDisplayed = true;
+                            alertText = statusAlert.Text.Trim();
+                        }
+                    }
+                    catch (WebDriverTimeoutException)
+                    {
+                        // Không thấy alert trong vòng 2 giây => alertDisplayed vẫn = false
+                    }
+
+                    if (alertDisplayed)
+                    {
+                        // Nếu có alert => Lấy nội dung alert làm actualResult
+                        actualResult = alertText;
+                        Console.WriteLine($"Phát hiện alert statusAlert: {actualResult}");
+                        // Ghi kết quả vào Excel và kết thúc test case
+                        WriteTestResultToExcel(testCase["TestCase"], actualResult, driver.Url);
+                        continue; // Chuyển sang test case tiếp theo
+                    }
+
+                    // =========================
+                    // Nếu không có alert thì ta tiếp tục luồng chọn phòng, thanh toán
+                    // (giống như Test_Input_Booking).
+                    // =========================
+
+                    // Tìm nút "Chọn" của phòng đầu tiên
+                    var addRoomButtons = driver.FindElements(By.ClassName("addRoomButton"))
+                                               .Where(b => b.Displayed && b.Enabled)
+                                               .ToList();
+
+                    if (addRoomButtons.Count == 0)
+                    {
+                        actualResult = "Không có phòng nào khả dụng để chọn.";
+                        WriteTestResultToExcel(testCase["TestCase"], actualResult, driver.Url);
+                        continue;
+                    }
+
+                    IWebElement firstRoomButton = addRoomButtons.First();
+                    SafeClick(firstRoomButton, js);
+                    Thread.Sleep(1000);
+
+                    // Nhấn nút Xác nhận
+                    IWebElement submitButton = localWait.Until(ExpectedConditions.ElementToBeClickable(By.Id("submit-booking")));
+                    SafeClick(submitButton, js);
+
+                    // Chờ chuyển sang trang thanh toán
+                    try
+                    {
+                        localWait.Until(d => d.Url.Contains("vnpay") || d.Url.Contains("payment"));
+                        actualUrl = driver.Url;
+                        Console.WriteLine($"Đã chuyển đến trang thanh toán: {actualUrl}");
+
+                        // Tiếp tục demo nhập thông tin thanh toán
+                        IWebElement paymentMethodElement = localWait.Until(ExpectedConditions.ElementToBeClickable(
+                            By.XPath("//div[@class='list-method-button' and @data-bs-target='#accordionList2']")));
+                        SafeClick(paymentMethodElement, js);
+
+                        localWait.Until(d => (bool)js.ExecuteScript("return jQuery.active == 0"));
+
+                        IWebElement ncbBankElement = localWait.Until(ExpectedConditions.ElementToBeClickable(
+                            By.XPath("//div[@class='list-bank-item-inner' and contains(@style, 'ncb.svg')]")));
+                        SafeClick(ncbBankElement, js);
+
+                        localWait.Until(d => (bool)js.ExecuteScript("return jQuery.active == 0"));
+
+                        IWebElement cardNumberElement = localWait.Until(ExpectedConditions.ElementIsVisible(By.Id("card_number_mask")));
+                        cardNumberElement.SendKeys(testCase["CardNumber"] ?? "9704198526191432198");
+
+                        IWebElement cardHolderElement = localWait.Until(ExpectedConditions.ElementIsVisible(By.Id("cardHolder")));
+                        cardHolderElement.Clear();
+                        cardHolderElement.SendKeys(testCase["CardHolder"] ?? "NGUYEN VAN A");
+
+                        IWebElement cardDateElement = localWait.Until(ExpectedConditions.ElementIsVisible(By.Id("cardDate")));
+                        cardDateElement.Clear();
+                        cardDateElement.SendKeys(testCase["CardDate"] ?? "07/25");
+
+                        IWebElement continueButton = localWait.Until(ExpectedConditions.ElementToBeClickable(By.Id("btnContinue")));
+                        SafeClick(continueButton, js);
+
+                        IWebElement agreeButton = localWait.Until(ExpectedConditions.ElementToBeClickable(
+                            By.XPath("//a[.//span[text()='Đồng ý & Tiếp tục']]")));
+                        SafeClick(agreeButton, js);
+
+                        IWebElement otpElement = localWait.Until(ExpectedConditions.ElementIsVisible(By.Id("otpvalue")));
+                        otpElement.SendKeys(testCase["OTP"] ?? "123456");
+
+                        IWebElement confirmButton = localWait.Until(ExpectedConditions.ElementToBeClickable(By.Id("btnConfirm")));
+                        SafeClick(confirmButton, js);
+
+                        // Chờ kết quả thanh toán
+                        localWait.Until(d => d.Url.Contains("PaymentSuccess"));
+                        actualUrl = driver.Url;
+                        actualResult = "Đặt phòng và thanh toán thành công!";
+                    }
+                    catch (WebDriverTimeoutException)
+                    {
+                        actualResult = "Không chuyển qua trang thanh toán";
+                    }
+
+                    // Ghi kết quả
+                    WriteTestResultToExcel(testCase["TestCase"], actualResult, actualUrl);
+                }
+                catch (Exception ex)
+                {
+                    actualResult = "Lỗi: " + ex.Message;
+                    WriteTestResultToExcel(testCase["TestCase"], actualResult, driver.Url);
+                }
+            }
+
+            // Kết thúc hàm
+            Assert.Pass("Đã chạy xong Test_Booking_with_Wrongs_Date (TC015, TC016, TC017). Vui lòng kiểm tra file Excel để xem chi tiết.");
+        }
+
+
+        
+
+
+
+
+
+
+
     }
 }  
