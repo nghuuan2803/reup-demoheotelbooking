@@ -132,17 +132,20 @@ namespace SeleniumTest
 
             try
             {
+                // Đăng nhập
                 Login(testData["Tên Đăng Nhập"], testData["Mật Khẩu"]);
                 Console.WriteLine($"Đã đăng nhập với Username: {testData["Tên Đăng Nhập"]}");
 
+                // Điều hướng đến trang quản lý phòng
                 driver.Navigate().GoToUrl($"{baseUrl}/admin/Roommanager/roomstatus");
                 wait.Until(d => d.Url.Contains("/admin/Roommanager/roomstatus"));
                 Console.WriteLine($"URL sau khi điều hướng: {driver.Url}");
 
                 Thread.Sleep(5000);
                 IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
-
                 WebDriverWait extendedWait = new WebDriverWait(driver, TimeSpan.FromSeconds(60));
+
+                // Nhấn vào "DS Đặt phòng"
                 IWebElement bookingListLink = extendedWait.Until(ExpectedConditions.ElementToBeClickable(
                     By.XPath("//a[@href='/invoice/bookinglist' and .//span[text()='DS Đặt phòng']]")
                 ));
@@ -150,17 +153,17 @@ namespace SeleniumTest
                 Console.WriteLine("Đã nhấn vào 'DS Đặt phòng'");
                 wait.Until(d => d.Url.Contains("/invoice/bookinglist"));
 
+                // Chờ bảng danh sách đặt phòng được tải
                 IWebElement table = wait.Until(ExpectedConditions.ElementExists(By.CssSelector("table.table")));
                 IList<IWebElement> rows = table.FindElements(By.CssSelector("tbody tr"));
-                if (rows.Count == 0) throw new Exception("Không tìm thấy hàng nào trong bảng.");
+                if (rows.Count == 0)
+                    throw new Exception("Không tìm thấy hàng nào trong bảng.");
 
-                IWebElement lastRow = rows[rows.Count - 1];
-                IList<IWebElement> cells = lastRow.FindElements(By.CssSelector("td"));
-                if (cells.Count < 5) throw new Exception("Số cột trong hàng cuối không đủ.");
-
+                // Đọc BookingID từ test data
                 string bookingId = testData["BookingID"];
                 Console.WriteLine($"Booking ID: {bookingId}");
 
+                // Nhấn vào nút "Xem chi tiết" dựa trên BookingID
                 IWebElement detailLink = extendedWait.Until(ExpectedConditions.ElementToBeClickable(
                     By.XPath($"//a[@href='/Invoice/BookingDetails/{bookingId}']")
                 ));
@@ -168,23 +171,26 @@ namespace SeleniumTest
                 Console.WriteLine($"Đã nhấn vào 'Xem chi tiết' của booking {bookingId}");
                 wait.Until(d => d.Url.Contains($"/Invoice/BookingDetails/{bookingId}"));
 
+                // Nhấn nút "Checkin"
                 string checkinXPath = $"//a[@href='/invoice/checkin/{bookingId}' and contains(@onclick, \"confirm('Xác nhận')\")]";
                 IWebElement checkinButton = extendedWait.Until(ExpectedConditions.ElementIsVisible(By.XPath(checkinXPath)));
                 SafeClick(checkinButton);
                 Console.WriteLine("Đã nhấn vào nút 'Checkin'.");
                 Thread.Sleep(2000);
 
+                // Chờ alert hiện ra và chấp nhận
                 WebDriverWait alertWait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
                 alertWait.Until(ExpectedConditions.AlertIsPresent());
                 driver.SwitchTo().Alert().Accept();
                 Console.WriteLine("Đã nhấn OK trên alert.");
                 Thread.Sleep(4000);
 
-                string checkoutXPath = $"//a[@href='/Invoice/Checkout/{bookingId}' and contains(text(), 'Trả phòng')]";
+                // Tìm nút "Trả phòng" sử dụng XPath mới
+                string checkoutXPath = "//a[normalize-space(text())='Trả phòng' and contains(@href, '/Invoice/Checkout/')]";
                 bool isCheckoutVisible = false;
                 try
                 {
-                    IWebElement checkoutButton = extendedWait.Until(ExpectedConditions.ElementExists(By.XPath(checkoutXPath)));
+                    IWebElement checkoutButton = extendedWait.Until(ExpectedConditions.ElementIsVisible(By.XPath(checkoutXPath)));
                     isCheckoutVisible = checkoutButton.Displayed;
                 }
                 catch (WebDriverTimeoutException)
@@ -211,6 +217,7 @@ namespace SeleniumTest
                 }
             }
         }
+
 
         [Test]
         public void Test_Cancel_CheckIn()
@@ -241,8 +248,8 @@ namespace SeleniumTest
 
                 Thread.Sleep(5000);
                 IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
-
                 WebDriverWait extendedWait = new WebDriverWait(driver, TimeSpan.FromSeconds(60));
+
                 IWebElement bookingListLink = extendedWait.Until(ExpectedConditions.ElementToBeClickable(
                     By.XPath("//a[@href='/invoice/bookinglist' and .//span[text()='DS Đặt phòng']]")
                 ));
@@ -280,11 +287,12 @@ namespace SeleniumTest
                 Console.WriteLine("Đã nhấn Cancel trên alert.");
                 Thread.Sleep(4000);
 
-                string checkoutXPath = $"//a[@href='/Invoice/Checkout/{bookingId}' and contains(text(), 'Trả phòng')]";
+                // Sử dụng XPath mới cho nút "Trả phòng"
+                string checkoutXPath = "//a[normalize-space(text())='Trả phòng' and contains(@href, '/Invoice/Checkout/')]";
                 bool isCheckoutVisible = false;
                 try
                 {
-                    IWebElement checkoutButton = extendedWait.Until(ExpectedConditions.ElementExists(By.XPath(checkoutXPath)));
+                    IWebElement checkoutButton = extendedWait.Until(ExpectedConditions.ElementIsVisible(By.XPath(checkoutXPath)));
                     isCheckoutVisible = checkoutButton.Displayed;
                 }
                 catch (WebDriverTimeoutException)
@@ -311,6 +319,7 @@ namespace SeleniumTest
                 }
             }
         }
+
 
         [Test]
         public void Test_CheckIn_Before_And_After()

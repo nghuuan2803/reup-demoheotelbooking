@@ -1552,14 +1552,5 @@ namespace SeleniumTest
             Assert.Pass("Đã chạy xong Test_Booking_with_Wrongs_Date (TC015, TC016, TC017). Vui lòng kiểm tra file Excel để xem chi tiết.");
         }
 
-
-        
-
-
-
-
-
-
-
     }
 }  
