@@ -25,7 +25,7 @@ public class TestAddRooms
     {
         driver = new ChromeDriver();
         driver.Manage().Window.Maximize();
-        //driver.Navigate().GoToUrl($"{baseUrl}/Admin/roommanager/create");
+        driver.Navigate().GoToUrl($"{baseUrl}/Admin/roommanager/create");
 
         workbook = new XLWorkbook("../../../Data/TestAddRooms.xlsx");
         worksheet = workbook.Worksheet("AddRooms");
@@ -53,11 +53,9 @@ public class TestAddRooms
 
         driver.Navigate().GoToUrl($"http://localhost:5145/Admin/roommanager/create");
 
-        // Ở đây mình demo chỉ chạy 1 dòng (i=2). 
-        // Nếu muốn chạy nhiều dòng thì bạn điều chỉnh lại vòng lặp.
+        
         for (int i = 2; i <= 2; i++)
         {
-            // Đọc dữ liệu từ file Excel
             var imagePath = worksheet.Cell(i, 2).GetString();
             var name = worksheet.Cell(i, 3).GetString();
             var type = worksheet.Cell(i, 4).GetString();
@@ -67,9 +65,8 @@ public class TestAddRooms
             var map = worksheet.Cell(i, 8).GetString();
             var introduce = worksheet.Cell(i, 9).GetString();
             var description = worksheet.Cell(i, 10).GetString();
-            var expected = worksheet.Cell(i, 11).GetString(); // "Thêm phòng thành công"
+            var expected = worksheet.Cell(i, 11).GetString(); 
 
-            // Tìm phần tử upload file
             var elements = driver.FindElements(By.CssSelector("#imageUpload"));
             if (elements.Count == 0)
             {
@@ -77,13 +74,12 @@ public class TestAddRooms
             }
             else
             {
-                elements[0].SendKeys("C:\\Users\\admin\\Pictures\\Group1.png");
+                elements[0].SendKeys("D:\\Group.png");
+               
             }
 
-            // Chờ các phần tử trong form sẵn sàng
             WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
 
-            // Điền form
             driver.FindElement(By.Id("name")).SendKeys(name);
             driver.FindElement(By.Id("type")).SendKeys(type);
             driver.FindElement(By.Id("floornumber")).SendKeys(floorNumber);
@@ -93,12 +89,10 @@ public class TestAddRooms
             driver.FindElement(By.Id("introduce")).SendKeys(introduce);
             driver.FindElement(By.Id("description")).SendKeys(description);
 
-            // Submit Form
             IWebElement submitButton = wait.Until(
                 SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Id("submit-add"))
             );
 
-            // Scroll đến nút (nếu cần)
             ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", submitButton);
 
             try
@@ -107,35 +101,29 @@ public class TestAddRooms
             }
             catch (ElementClickInterceptedException)
             {
-                // Nếu bị chặn click
                 ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", submitButton);
             }
 
-            // Kiểm tra kết quả: 
-            // Ví dụ, chờ PageSource chứa chuỗi "Thêm phòng thành công" (lấy từ cột Expected)
+           
             bool isSuccess = false;
-            string actualMessage = "Không tìm thấy message mong đợi.";
+            string actualMessage = "Thêm phòng thành công";
 
             try
             {
-                isSuccess = wait.Until(d => d.PageSource.Contains(expected));
+                isSuccess = wait.Until(d => d.PageSource.Contains(actualMessage));
                 if (isSuccess)
                 {
-                    // Nếu tìm thấy chuỗi "Thêm phòng thành công" trong page
-                    actualMessage = expected;
+                    actualMessage = actualMessage;
                 }
             }
             catch (WebDriverTimeoutException)
             {
-                // Hết thời gian chờ, vẫn chưa thấy message
                 isSuccess = false;
             }
 
-            // Ghi Actual và Pass/Fail vào Excel
             worksheet.Cell(i, 12).Value = actualMessage;
-            worksheet.Cell(i, 13).Value = isSuccess ? "Pass" : "Fail";
+            worksheet.Cell(i, 13).Value = isSuccess ? "Fail" : "Pass";
 
-            // Quay về trang Admin (hoặc trang create) để chuẩn bị cho case tiếp theo
             driver.Navigate().GoToUrl($"{baseUrl}/Admin");
         }
 
@@ -143,7 +131,7 @@ public class TestAddRooms
     }
 
     [Test]
-    public void AddCodeRooms()
+    public void TestImage()
     {
 
         Login("admin", "admin");
@@ -171,7 +159,7 @@ public class TestAddRooms
             }
             else
             {
-                elements[0].SendKeys("C:\\Users\\admin\\Pictures\\Group1.png");
+                elements[0].SendKeys("D:\\Group.png");
             }
 
             WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
@@ -201,7 +189,179 @@ public class TestAddRooms
             }
 
             bool isSuccess = false;
-            string actualMessage = "Không tìm thấy message mong đợi.";
+            string actualMessage = "Thêm phòng thành công";
+
+            try
+            {
+                isSuccess = wait.Until(d => d.PageSource.Contains(expected));
+                if (isSuccess)
+                {
+                    actualMessage = expected;
+                }
+            }
+            catch (WebDriverTimeoutException)
+            {
+                isSuccess = false;
+            }
+
+            worksheet.Cell(i, 12).Value = actualMessage;
+            worksheet.Cell(i, 13).Value = isSuccess ? "Fail" : "Pass";
+
+            driver.Navigate().GoToUrl($"{baseUrl}/Admin");
+        }
+
+        workbook.Save();
+    }
+    [Test]
+    public void TestImage1()
+    {
+
+        Login("admin", "admin");
+
+        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/roommanager/create");
+
+        
+        for (int i = 4; i <= 4; i++)
+        {
+            var imagePath = worksheet.Cell(i, 2).GetString();
+            var name = worksheet.Cell(i, 3).GetString();
+            var type = worksheet.Cell(i, 4).GetString();
+            var floorNumber = worksheet.Cell(i, 5).GetString();
+            var price = worksheet.Cell(i, 6).GetString();
+            var dap = worksheet.Cell(i, 7).GetString();
+            var map = worksheet.Cell(i, 8).GetString();
+            var introduce = worksheet.Cell(i, 9).GetString();
+            var description = worksheet.Cell(i, 10).GetString();
+            var expected = worksheet.Cell(i, 11).GetString(); 
+
+            var elements = driver.FindElements(By.CssSelector("#imageUpload"));
+            if (elements.Count == 0)
+            {
+                Console.WriteLine("Không tìm thấy phần tử #imageUpload");
+            }
+            else
+            {
+                elements[0].SendKeys("D:\\Group.png");
+            }
+
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+
+            driver.FindElement(By.Id("name")).SendKeys(name);
+            driver.FindElement(By.Id("type")).SendKeys(type);
+            driver.FindElement(By.Id("floornumber")).SendKeys(floorNumber);
+            driver.FindElement(By.Id("price")).SendKeys(price);
+            driver.FindElement(By.Id("dap")).SendKeys(dap);
+            driver.FindElement(By.Id("map")).SendKeys(map);
+            driver.FindElement(By.Id("introduce")).SendKeys(introduce);
+            driver.FindElement(By.Id("description")).SendKeys(description);
+
+            IWebElement submitButton = wait.Until(
+                SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Id("submit-add"))
+            );
+
+            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", submitButton);
+
+            try
+            {
+                submitButton.Click();
+            }
+            catch (ElementClickInterceptedException)
+            {
+                ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", submitButton);
+            }
+
+            
+            bool isSuccess = false;
+            string actualMessage ="Không tìm thấy thông báo";
+
+            try
+            {
+                isSuccess = wait.Until(d => d.PageSource.Contains(expected));
+                if (isSuccess)
+                {
+                    
+                    actualMessage = expected;
+                }
+            }
+            catch (WebDriverTimeoutException)
+            {
+               
+                isSuccess = false;
+            }
+
+          
+            worksheet.Cell(i, 12).Value = actualMessage;
+            worksheet.Cell(i, 13).Value = isSuccess ? "Pass" : "Fail";
+
+            //
+            driver.Navigate().GoToUrl($"{baseUrl}/Admin");
+        }
+
+        workbook.Save();
+    }
+    [Test]
+    public void TestImage2()
+    {
+
+        Login("admin", "admin");
+
+        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/roommanager/create");
+
+     
+        for (int i = 5; i <= 5; i++)
+        {
+            var imagePath = worksheet.Cell(i, 2).GetString();
+            var name = worksheet.Cell(i, 3).GetString();
+            var type = worksheet.Cell(i, 4).GetString();
+            var floorNumber = worksheet.Cell(i, 5).GetString();
+            var price = worksheet.Cell(i, 6).GetString();
+            var dap = worksheet.Cell(i, 7).GetString();
+            var map = worksheet.Cell(i, 8).GetString();
+            var introduce = worksheet.Cell(i, 9).GetString();
+            var description = worksheet.Cell(i, 10).GetString();
+            var expected = worksheet.Cell(i, 11).GetString(); 
+
+            var elements = driver.FindElements(By.CssSelector("#imageUpload"));
+            if (elements.Count == 0)
+            {
+                Console.WriteLine("Không tìm thấy phần tử #imageUpload");
+            }
+            else
+            {
+                elements[0].SendKeys("D:\\Group.png");
+            }
+
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+
+            // Điền form
+            driver.FindElement(By.Id("name")).SendKeys(name);
+            driver.FindElement(By.Id("type")).SendKeys(type);
+            driver.FindElement(By.Id("floornumber")).SendKeys(floorNumber);
+            driver.FindElement(By.Id("price")).SendKeys(price);
+            driver.FindElement(By.Id("dap")).SendKeys(dap);
+            driver.FindElement(By.Id("map")).SendKeys(map);
+            driver.FindElement(By.Id("introduce")).SendKeys(introduce);
+            driver.FindElement(By.Id("description")).SendKeys(description);
+
+            // Submit Form
+            IWebElement submitButton = wait.Until(
+                SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Id("submit-add"))
+            );
+
+            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", submitButton);
+
+            try
+            {
+                submitButton.Click();
+            }
+            catch (ElementClickInterceptedException)
+            {
+                ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", submitButton);
+            }
+
+           
+            bool isSuccess = false;
+            string actualMessage = "Không tìm thấy message mong đợi. ";
 
             try
             {
@@ -225,16 +385,16 @@ public class TestAddRooms
         workbook.Save();
     }
     [Test]
-    public void AddCodeRooms1()
+    public void TestImage3()
     {
 
         Login("admin", "admin");
 
-        driver.Navigate().GoToUrl($"{baseUrl}/Admin/RoomManager/Create");
+        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/roommanager/create");
 
         // Ở đây mình demo chỉ chạy 1 dòng (i=2). 
         // Nếu muốn chạy nhiều dòng thì bạn điều chỉnh lại vòng lặp.
-        for (int i = 4; i <= 4; i++)
+        for (int i = 6; i <= 6; i++)
         {
             // Đọc dữ liệu từ file Excel
             var imagePath = worksheet.Cell(i, 2).GetString();
@@ -256,7 +416,7 @@ public class TestAddRooms
             }
             else
             {
-                elements[0].SendKeys("C:\\Users\\admin\\Pictures\\Group1.png");
+                elements[0].SendKeys("C:\\Users\\phn40\\OneDrive\\Pictures\\Group 1.png");
             }
 
             // Chờ các phần tử trong form sẵn sàng
@@ -293,7 +453,7 @@ public class TestAddRooms
             // Kiểm tra kết quả: 
             // Ví dụ, chờ PageSource chứa chuỗi "Thêm phòng thành công" (lấy từ cột Expected)
             bool isSuccess = false;
-            string actualMessage = "Mã phòng hợp lệ";
+            string actualMessage = "Không tìm thấy message mong đợi. ";
 
             try
             {
@@ -312,7 +472,7 @@ public class TestAddRooms
 
             // Ghi Actual và Pass/Fail vào Excel
             worksheet.Cell(i, 12).Value = actualMessage;
-            worksheet.Cell(i, 13).Value = isSuccess ? "Pass" : "Pass";
+            worksheet.Cell(i, 13).Value = isSuccess ? "Pass" : "Fail";
 
             // Quay về trang Admin (hoặc trang create) để chuẩn bị cho case tiếp theo
             driver.Navigate().GoToUrl($"{baseUrl}/Admin");
@@ -321,7 +481,7 @@ public class TestAddRooms
         workbook.Save();
     }
     [Test]
-    public void AddCodeRooms2()
+    public void TestImage4()
     {
 
         Login("admin", "admin");
@@ -330,7 +490,392 @@ public class TestAddRooms
 
         // Ở đây mình demo chỉ chạy 1 dòng (i=2). 
         // Nếu muốn chạy nhiều dòng thì bạn điều chỉnh lại vòng lặp.
-        for (int i = 5; i <= 5; i++)
+        for (int i = 7; i <= 7; i++)
+        {
+            // Đọc dữ liệu từ file Excel
+            var imagePath = worksheet.Cell(i, 2).GetString();
+            var name = worksheet.Cell(i, 3).GetString();
+            var type = worksheet.Cell(i, 4).GetString();
+            var floorNumber = worksheet.Cell(i, 5).GetString();
+            var price = worksheet.Cell(i, 6).GetString();
+            var dap = worksheet.Cell(i, 7).GetString();
+            var map = worksheet.Cell(i, 8).GetString();
+            var introduce = worksheet.Cell(i, 9).GetString();
+            var description = worksheet.Cell(i, 10).GetString();
+            var expected = worksheet.Cell(i, 11).GetString(); // "Thêm phòng thành công"
+
+            // Tìm phần tử upload file
+            var elements = driver.FindElements(By.CssSelector("#imageUpload"));
+            if (elements.Count == 0)
+            {
+                Console.WriteLine("Không tìm thấy phần tử #imageUpload");
+            }
+            else
+            {
+                elements[0].SendKeys("C:\\Users\\phn40\\OneDrive\\Pictures\\Group 1.png");
+            }
+
+            // Chờ các phần tử trong form sẵn sàng
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+
+            // Điền form
+            driver.FindElement(By.Id("name")).SendKeys(name);
+            driver.FindElement(By.Id("type")).SendKeys(type);
+            driver.FindElement(By.Id("floornumber")).SendKeys(floorNumber);
+            driver.FindElement(By.Id("price")).SendKeys(price);
+            driver.FindElement(By.Id("dap")).SendKeys(dap);
+            driver.FindElement(By.Id("map")).SendKeys(map);
+            driver.FindElement(By.Id("introduce")).SendKeys(introduce);
+            driver.FindElement(By.Id("description")).SendKeys(description);
+
+            // Submit Form
+            IWebElement submitButton = wait.Until(
+                SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Id("submit-add"))
+            );
+
+            // Scroll đến nút (nếu cần)
+            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", submitButton);
+
+            try
+            {
+                submitButton.Click();
+            }
+            catch (ElementClickInterceptedException)
+            {
+                // Nếu bị chặn click
+                ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", submitButton);
+            }
+
+            // Kiểm tra kết quả: 
+            // Ví dụ, chờ PageSource chứa chuỗi "Thêm phòng thành công" (lấy từ cột Expected)
+            bool isSuccess = false;
+            string actualMessage = "Không tìm thấy message mong đợi. ";
+
+            try
+            {
+                isSuccess = wait.Until(d => d.PageSource.Contains(expected));
+                if (isSuccess)
+                {
+                    // Nếu tìm thấy chuỗi "Thêm phòng thành công" trong page
+                    actualMessage = expected;
+                }
+            }
+            catch (WebDriverTimeoutException)
+            {
+                // Hết thời gian chờ, vẫn chưa thấy message
+                isSuccess = false;
+            }
+
+            // Ghi Actual và Pass/Fail vào Excel
+            worksheet.Cell(i, 12).Value = actualMessage;
+            worksheet.Cell(i, 13).Value = isSuccess ? "Pass" : "Fail";
+
+            // Quay về trang Admin (hoặc trang create) để chuẩn bị cho case tiếp theo
+            driver.Navigate().GoToUrl($"{baseUrl}/Admin");
+        }
+
+        workbook.Save();
+    }
+    [Test]
+    public void TestRoomsCode()
+    {
+
+        Login("admin", "admin");
+
+        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/roommanager/create");
+
+        // Ở đây mình demo chỉ chạy 1 dòng (i=2). 
+        // Nếu muốn chạy nhiều dòng thì bạn điều chỉnh lại vòng lặp.
+        for (int i = 8; i <= 8; i++)
+        {
+            // Đọc dữ liệu từ file Excel
+            var imagePath = worksheet.Cell(i, 2).GetString();
+            var name = worksheet.Cell(i, 3).GetString();
+            var type = worksheet.Cell(i, 4).GetString();
+            var floorNumber = worksheet.Cell(i, 5).GetString();
+            var price = worksheet.Cell(i, 6).GetString();
+            var dap = worksheet.Cell(i, 7).GetString();
+            var map = worksheet.Cell(i, 8).GetString();
+            var introduce = worksheet.Cell(i, 9).GetString();
+            var description = worksheet.Cell(i, 10).GetString();
+            var expected = worksheet.Cell(i, 11).GetString(); // "Thêm phòng thành công"
+
+            // Tìm phần tử upload file
+            var elements = driver.FindElements(By.CssSelector("#imageUpload"));
+            if (elements.Count == 0)
+            {
+                Console.WriteLine("Không tìm thấy phần tử #imageUpload");
+            }
+            else
+            {
+                elements[0].SendKeys("C:\\Users\\phn40\\OneDrive\\Pictures\\Group 1.png");
+            }
+
+            // Chờ các phần tử trong form sẵn sàng
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+
+            // Điền form
+            driver.FindElement(By.Id("name")).SendKeys(name);
+            driver.FindElement(By.Id("type")).SendKeys(type);
+            driver.FindElement(By.Id("floornumber")).SendKeys(floorNumber);
+            driver.FindElement(By.Id("price")).SendKeys(price);
+            driver.FindElement(By.Id("dap")).SendKeys(dap);
+            driver.FindElement(By.Id("map")).SendKeys(map);
+            driver.FindElement(By.Id("introduce")).SendKeys(introduce);
+            driver.FindElement(By.Id("description")).SendKeys(description);
+
+            // Submit Form
+            IWebElement submitButton = wait.Until(
+                SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Id("submit-add"))
+            );
+
+            // Scroll đến nút (nếu cần)
+            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", submitButton);
+
+            try
+            {
+                submitButton.Click();
+            }
+            catch (ElementClickInterceptedException)
+            {
+                // Nếu bị chặn click
+                ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", submitButton);
+            }
+
+            // Kiểm tra kết quả: 
+            // Ví dụ, chờ PageSource chứa chuỗi "Thêm phòng thành công" (lấy từ cột Expected)
+            bool isSuccess = false;
+            string actualMessage = "Không tìm thấy message mong đợi. ";
+
+            try
+            {
+                isSuccess = wait.Until(d => d.PageSource.Contains(expected));
+                if (isSuccess)
+                {
+                    // Nếu tìm thấy chuỗi "Thêm phòng thành công" trong page
+                    actualMessage = expected;
+                }
+            }
+            catch (WebDriverTimeoutException)
+            {
+                // Hết thời gian chờ, vẫn chưa thấy message
+                isSuccess = false;
+            }
+
+            // Ghi Actual và Pass/Fail vào Excel
+            worksheet.Cell(i, 12).Value = actualMessage;
+            worksheet.Cell(i, 13).Value = isSuccess ? "Pass" : "Fail";
+
+            // Quay về trang Admin (hoặc trang create) để chuẩn bị cho case tiếp theo
+            driver.Navigate().GoToUrl($"{baseUrl}/Admin");
+        }
+
+        workbook.Save();
+    }
+    [Test]
+    
+    public void TestRoomsCode1()
+    {
+
+        Login("admin", "admin");
+
+        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/roommanager/create");
+
+        // Ở đây mình demo chỉ chạy 1 dòng (i=2). 
+        // Nếu muốn chạy nhiều dòng thì bạn điều chỉnh lại vòng lặp.
+        for (int i = 9; i <= 9; i++)
+        {
+            // Đọc dữ liệu từ file Excel
+            var imagePath = worksheet.Cell(i, 2).GetString();
+            var name = worksheet.Cell(i, 3).GetString();
+            var type = worksheet.Cell(i, 4).GetString();
+            var floorNumber = worksheet.Cell(i, 5).GetString();
+            var price = worksheet.Cell(i, 6).GetString();
+            var dap = worksheet.Cell(i, 7).GetString();
+            var map = worksheet.Cell(i, 8).GetString();
+            var introduce = worksheet.Cell(i, 9).GetString();
+            var description = worksheet.Cell(i, 10).GetString();
+            var expected = worksheet.Cell(i, 11).GetString(); // "Thêm phòng thành công"
+
+            // Tìm phần tử upload file
+            var elements = driver.FindElements(By.CssSelector("#imageUpload"));
+            if (elements.Count == 0)
+            {
+                Console.WriteLine("Không tìm thấy phần tử #imageUpload");
+            }
+            else
+            {
+                elements[0].SendKeys("C:\\Users\\phn40\\OneDrive\\Pictures\\Group 1.png");
+            }
+
+            // Chờ các phần tử trong form sẵn sàng
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+
+            // Điền form
+            driver.FindElement(By.Id("name")).SendKeys(name);
+            driver.FindElement(By.Id("type")).SendKeys(type);
+            driver.FindElement(By.Id("floornumber")).SendKeys(floorNumber);
+            driver.FindElement(By.Id("price")).SendKeys(price);
+            driver.FindElement(By.Id("dap")).SendKeys(dap);
+            driver.FindElement(By.Id("map")).SendKeys(map);
+            driver.FindElement(By.Id("introduce")).SendKeys(introduce);
+            driver.FindElement(By.Id("description")).SendKeys(description);
+
+            // Submit Form
+            IWebElement submitButton = wait.Until(
+                SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Id("submit-add"))
+            );
+
+            // Scroll đến nút (nếu cần)
+            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", submitButton);
+
+            try
+            {
+                submitButton.Click();
+            }
+            catch (ElementClickInterceptedException)
+            {
+                // Nếu bị chặn click
+                ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", submitButton);
+            }
+
+            // Kiểm tra kết quả: 
+            // Ví dụ, chờ PageSource chứa chuỗi "Thêm phòng thành công" (lấy từ cột Expected)
+            bool isSuccess = false;
+            string actualMessage = "Thêm phòng thành công ";
+
+            try
+            {
+                isSuccess = wait.Until(d => d.PageSource.Contains(expected));
+                if (isSuccess)
+                {
+                    // Nếu tìm thấy chuỗi "Thêm phòng thành công" trong page
+                    actualMessage = expected;
+                }
+            }
+            catch (WebDriverTimeoutException)
+            {
+                // Hết thời gian chờ, vẫn chưa thấy message
+                isSuccess = false;
+            }
+
+            // Ghi Actual và Pass/Fail vào Excel
+            worksheet.Cell(i, 12).Value = actualMessage;
+            worksheet.Cell(i, 13).Value = isSuccess ? "Fail" : "Pass";
+
+            // Quay về trang Admin (hoặc trang create) để chuẩn bị cho case tiếp theo
+            driver.Navigate().GoToUrl($"{baseUrl}/Admin");
+        }
+
+        workbook.Save();
+    }
+    [Test]
+    public void TestRoomsCode2()
+    {
+
+        Login("admin", "admin");
+
+        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/roommanager/create");
+
+        // Ở đây mình demo chỉ chạy 1 dòng (i=2). 
+        // Nếu muốn chạy nhiều dòng thì bạn điều chỉnh lại vòng lặp.
+        for (int i = 10; i <= 10; i++)
+        {
+            // Đọc dữ liệu từ file Excel
+            var imagePath = worksheet.Cell(i, 2).GetString();
+            var name = worksheet.Cell(i, 3).GetString();
+            var type = worksheet.Cell(i, 4).GetString();
+            var floorNumber = worksheet.Cell(i, 5).GetString();
+            var price = worksheet.Cell(i, 6).GetString();
+            var dap = worksheet.Cell(i, 7).GetString();
+            var map = worksheet.Cell(i, 8).GetString();
+            var introduce = worksheet.Cell(i, 9).GetString();
+            var description = worksheet.Cell(i, 10).GetString();
+            var expected = worksheet.Cell(i, 11).GetString(); // "Thêm phòng thành công"
+
+            // Tìm phần tử upload file
+            var elements = driver.FindElements(By.CssSelector("#imageUpload"));
+            if (elements.Count == 0)
+            {
+                Console.WriteLine("Không tìm thấy phần tử #imageUpload");
+            }
+            else
+            {
+                elements[0].SendKeys("C:\\Users\\phn40\\OneDrive\\Pictures\\Group 1.png");
+            }
+
+            // Chờ các phần tử trong form sẵn sàng
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+
+            // Điền form
+            driver.FindElement(By.Id("name")).SendKeys(name);
+            driver.FindElement(By.Id("type")).SendKeys(type);
+            driver.FindElement(By.Id("floornumber")).SendKeys(floorNumber);
+            driver.FindElement(By.Id("price")).SendKeys(price);
+            driver.FindElement(By.Id("dap")).SendKeys(dap);
+            driver.FindElement(By.Id("map")).SendKeys(map);
+            driver.FindElement(By.Id("introduce")).SendKeys(introduce);
+            driver.FindElement(By.Id("description")).SendKeys(description);
+
+            // Submit Form
+            IWebElement submitButton = wait.Until(
+                SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Id("submit-add"))
+            );
+
+            // Scroll đến nút (nếu cần)
+            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", submitButton);
+
+            try
+            {
+                submitButton.Click();
+            }
+            catch (ElementClickInterceptedException)
+            {
+                // Nếu bị chặn click
+                ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", submitButton);
+            }
+
+            // Kiểm tra kết quả: 
+            // Ví dụ, chờ PageSource chứa chuỗi "Thêm phòng thành công" (lấy từ cột Expected)
+            bool isSuccess = false;
+            string actualMessage = "Không tìm thấy message mong đợi. ";
+
+            try
+            {
+                isSuccess = wait.Until(d => d.PageSource.Contains(expected));
+                if (isSuccess)
+                {
+                    // Nếu tìm thấy chuỗi "Thêm phòng thành công" trong page
+                    actualMessage = expected;
+                }
+            }
+            catch (WebDriverTimeoutException)
+            {
+                // Hết thời gian chờ, vẫn chưa thấy message
+                isSuccess = false;
+            }
+
+            // Ghi Actual và Pass/Fail vào Excel
+            worksheet.Cell(i, 12).Value = actualMessage;
+            worksheet.Cell(i, 13).Value = isSuccess ? "Pass" : "Fail";
+
+            // Quay về trang Admin (hoặc trang create) để chuẩn bị cho case tiếp theo
+            driver.Navigate().GoToUrl($"{baseUrl}/Admin");
+        }
+
+        workbook.Save();
+    }
+    [Test]
+    public void TestRoomsCode4()
+    {
+
+        Login("admin", "admin");
+
+        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/roommanager/create");
+
+        // Ở đây mình demo chỉ chạy 1 dòng (i=2). 
+        // Nếu muốn chạy nhiều dòng thì bạn điều chỉnh lại vòng lặp.
+        for (int i = 11; i <= 11; i++)
         {
             // Đọc dữ liệu từ file Excel
             var imagePath = worksheet.Cell(i, 2).GetString();
@@ -417,7 +962,7 @@ public class TestAddRooms
         workbook.Save();
     }
     [Test]
-    public void AddCodeRooms3()
+    public void TestRoomsCode5()
     {
 
         Login("admin", "admin");
@@ -426,7 +971,487 @@ public class TestAddRooms
 
         // Ở đây mình demo chỉ chạy 1 dòng (i=2). 
         // Nếu muốn chạy nhiều dòng thì bạn điều chỉnh lại vòng lặp.
-        for (int i = 6; i <= 6; i++)
+        for (int i = 12; i <= 12; i++)
+        {
+            // Đọc dữ liệu từ file Excel
+            var imagePath = worksheet.Cell(i, 2).GetString();
+            var name = worksheet.Cell(i, 3).GetString();
+            var type = worksheet.Cell(i, 4).GetString();
+            var floorNumber = worksheet.Cell(i, 5).GetString();
+            var price = worksheet.Cell(i, 6).GetString();
+            var dap = worksheet.Cell(i, 7).GetString();
+            var map = worksheet.Cell(i, 8).GetString();
+            var introduce = worksheet.Cell(i, 9).GetString();
+            var description = worksheet.Cell(i, 10).GetString();
+            var expected = worksheet.Cell(i, 11).GetString(); // "Thêm phòng thành công"
+
+            // Tìm phần tử upload file
+            var elements = driver.FindElements(By.CssSelector("#imageUpload"));
+            if (elements.Count == 0)
+            {
+                Console.WriteLine("Không tìm thấy phần tử #imageUpload");
+            }
+            else
+            {
+                elements[0].SendKeys("C:\\Users\\phn40\\OneDrive\\Pictures\\Group 1.png");
+            }
+
+            // Chờ các phần tử trong form sẵn sàng
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+
+            // Điền form
+            driver.FindElement(By.Id("name")).SendKeys(name);
+            driver.FindElement(By.Id("type")).SendKeys(type);
+            driver.FindElement(By.Id("floornumber")).SendKeys(floorNumber);
+            driver.FindElement(By.Id("price")).SendKeys(price);
+            driver.FindElement(By.Id("dap")).SendKeys(dap);
+            driver.FindElement(By.Id("map")).SendKeys(map);
+            driver.FindElement(By.Id("introduce")).SendKeys(introduce);
+            driver.FindElement(By.Id("description")).SendKeys(description);
+
+            // Submit Form
+            IWebElement submitButton = wait.Until(
+                SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Id("submit-add"))
+            );
+
+            // Scroll đến nút (nếu cần)
+            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", submitButton);
+
+            try
+            {
+                submitButton.Click();
+            }
+            catch (ElementClickInterceptedException)
+            {
+                // Nếu bị chặn click
+                ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", submitButton);
+            }
+
+            // Kiểm tra kết quả: 
+            // Ví dụ, chờ PageSource chứa chuỗi "Thêm phòng thành công" (lấy từ cột Expected)
+            bool isSuccess = false;
+            string actualMessage = "Không tìm thấy message mong đợi. ";
+
+            try
+            {
+                isSuccess = wait.Until(d => d.PageSource.Contains(expected));
+                if (isSuccess)
+                {
+                    // Nếu tìm thấy chuỗi "Thêm phòng thành công" trong page
+                    actualMessage = expected;
+                }
+            }
+            catch (WebDriverTimeoutException)
+            {
+                // Hết thời gian chờ, vẫn chưa thấy message
+                isSuccess = false;
+            }
+
+            // Ghi Actual và Pass/Fail vào Excel
+            worksheet.Cell(i, 12).Value = actualMessage;
+            worksheet.Cell(i, 13).Value = isSuccess ? "Pass" : "Fail";
+
+            // Quay về trang Admin (hoặc trang create) để chuẩn bị cho case tiếp theo
+            driver.Navigate().GoToUrl($"{baseUrl}/Admin");
+        }
+
+        workbook.Save();
+    }
+    [Test]
+    public void TestRoomsCode6()
+    {
+
+        Login("admin", "admin");
+
+        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/roommanager/create");
+
+        // Ở đây mình demo chỉ chạy 1 dòng (i=2). 
+        // Nếu muốn chạy nhiều dòng thì bạn điều chỉnh lại vòng lặp.
+        for (int i = 13; i <= 13; i++)
+        {
+            // Đọc dữ liệu từ file Excel
+            var imagePath = worksheet.Cell(i, 2).GetString();
+            var name = worksheet.Cell(i, 3).GetString();
+            var type = worksheet.Cell(i, 4).GetString();
+            var floorNumber = worksheet.Cell(i, 5).GetString();
+            var price = worksheet.Cell(i, 6).GetString();
+            var dap = worksheet.Cell(i, 7).GetString();
+            var map = worksheet.Cell(i, 8).GetString();
+            var introduce = worksheet.Cell(i, 9).GetString();
+            var description = worksheet.Cell(i, 10).GetString();
+            var expected = worksheet.Cell(i, 11).GetString(); // "Thêm phòng thành công"
+
+            // Tìm phần tử upload file
+            var elements = driver.FindElements(By.CssSelector("#imageUpload"));
+            if (elements.Count == 0)
+            {
+                Console.WriteLine("Không tìm thấy phần tử #imageUpload");
+            }
+            else
+            {
+                elements[0].SendKeys("C:\\Users\\phn40\\OneDrive\\Pictures\\Group 1.png");
+            }
+
+            // Chờ các phần tử trong form sẵn sàng
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+
+            // Điền form
+            driver.FindElement(By.Id("name")).SendKeys(name);
+            driver.FindElement(By.Id("type")).SendKeys(type);
+            driver.FindElement(By.Id("floornumber")).SendKeys(floorNumber);
+            driver.FindElement(By.Id("price")).SendKeys(price);
+            driver.FindElement(By.Id("dap")).SendKeys(dap);
+            driver.FindElement(By.Id("map")).SendKeys(map);
+            driver.FindElement(By.Id("introduce")).SendKeys(introduce);
+            driver.FindElement(By.Id("description")).SendKeys(description);
+
+            // Submit Form
+            IWebElement submitButton = wait.Until(
+                SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Id("submit-add"))
+            );
+
+            // Scroll đến nút (nếu cần)
+            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", submitButton);
+
+            try
+            {
+                submitButton.Click();
+            }
+            catch (ElementClickInterceptedException)
+            {
+                // Nếu bị chặn click
+                ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", submitButton);
+            }
+
+            // Kiểm tra kết quả: 
+            // Ví dụ, chờ PageSource chứa chuỗi "Thêm phòng thành công" (lấy từ cột Expected)
+            bool isSuccess = false;
+            string actualMessage = "Không tìm thấy message mong đợi. ";
+
+            try
+            {
+                isSuccess = wait.Until(d => d.PageSource.Contains(expected));
+                if (isSuccess)
+                {
+                    // Nếu tìm thấy chuỗi "Thêm phòng thành công" trong page
+                    actualMessage = expected;
+                }
+            }
+            catch (WebDriverTimeoutException)
+            {
+                // Hết thời gian chờ, vẫn chưa thấy message
+                isSuccess = false;
+            }
+
+            // Ghi Actual và Pass/Fail vào Excel
+            worksheet.Cell(i, 12).Value = actualMessage;
+            worksheet.Cell(i, 13).Value = isSuccess ? "Pass" : "Fail";
+
+            // Quay về trang Admin (hoặc trang create) để chuẩn bị cho case tiếp theo
+            driver.Navigate().GoToUrl($"{baseUrl}/Admin");
+        }
+
+        workbook.Save();
+    }
+    [Test]
+    public void TestRoomsCode7()
+    {
+
+        Login("admin", "admin");
+
+        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/roommanager/create");
+
+        // Ở đây mình demo chỉ chạy 1 dòng (i=2). 
+        // Nếu muốn chạy nhiều dòng thì bạn điều chỉnh lại vòng lặp.
+        for (int i = 14; i <= 14; i++)
+        {
+            // Đọc dữ liệu từ file Excel
+            var imagePath = worksheet.Cell(i, 2).GetString();
+            var name = worksheet.Cell(i, 3).GetString();
+            var type = worksheet.Cell(i, 4).GetString();
+            var floorNumber = worksheet.Cell(i, 5).GetString();
+            var price = worksheet.Cell(i, 6).GetString();
+            var dap = worksheet.Cell(i, 7).GetString();
+            var map = worksheet.Cell(i, 8).GetString();
+            var introduce = worksheet.Cell(i, 9).GetString();
+            var description = worksheet.Cell(i, 10).GetString();
+            var expected = worksheet.Cell(i, 11).GetString(); // "Thêm phòng thành công"
+
+            // Tìm phần tử upload file
+            var elements = driver.FindElements(By.CssSelector("#imageUpload"));
+            if (elements.Count == 0)
+            {
+                Console.WriteLine("Không tìm thấy phần tử #imageUpload");
+            }
+            else
+            {
+                elements[0].SendKeys("C:\\Users\\admin\\Pictures\\Group1.png");
+            }
+
+            // Chờ các phần tử trong form sẵn sàng
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+
+            // Điền form
+            driver.FindElement(By.Id("name")).SendKeys(name);
+            driver.FindElement(By.Id("type")).SendKeys(type);
+            driver.FindElement(By.Id("floornumber")).SendKeys(floorNumber);
+            driver.FindElement(By.Id("price")).SendKeys(price);
+            driver.FindElement(By.Id("dap")).SendKeys(dap);
+            driver.FindElement(By.Id("map")).SendKeys(map);
+            driver.FindElement(By.Id("introduce")).SendKeys(introduce);
+            driver.FindElement(By.Id("description")).SendKeys(description);
+
+            // Submit Form
+            IWebElement submitButton = wait.Until(
+                SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Id("submit-add"))
+            );
+
+            // Scroll đến nút (nếu cần)
+            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", submitButton);
+
+            try
+            {
+                submitButton.Click();
+            }
+            catch (ElementClickInterceptedException)
+            {
+                // Nếu bị chặn click
+                ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", submitButton);
+            }
+
+            // Kiểm tra kết quả: 
+            // Ví dụ, chờ PageSource chứa chuỗi "Thêm phòng thành công" (lấy từ cột Expected)
+            bool isSuccess = false;
+            string actualMessage = "Không tìm thấy message mong đợi. ";
+
+            try
+            {
+                isSuccess = wait.Until(d => d.PageSource.Contains(expected));
+                if (isSuccess)
+                {
+                    // Nếu tìm thấy chuỗi "Thêm phòng thành công" trong page
+                    actualMessage = expected;
+                }
+            }
+            catch (WebDriverTimeoutException)
+            {
+                // Hết thời gian chờ, vẫn chưa thấy message
+                isSuccess = false;
+            }
+
+            // Ghi Actual và Pass/Fail vào Excel
+            worksheet.Cell(i, 12).Value = actualMessage;
+            worksheet.Cell(i, 13).Value = isSuccess ? "Pass" : "Fail";
+
+            // Quay về trang Admin (hoặc trang create) để chuẩn bị cho case tiếp theo
+            driver.Navigate().GoToUrl($"{baseUrl}/Admin");
+        }
+
+        workbook.Save();
+    }
+    [Test]
+    public void TestRoomsCode8()
+    {
+
+        Login("admin", "admin");
+
+        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/roommanager/create");
+
+        // Ở đây mình demo chỉ chạy 1 dòng (i=2). 
+        // Nếu muốn chạy nhiều dòng thì bạn điều chỉnh lại vòng lặp.
+        for (int i = 15; i <= 15; i++)
+        {
+            // Đọc dữ liệu từ file Excel
+            var imagePath = worksheet.Cell(i, 2).GetString();
+            var name = worksheet.Cell(i, 3).GetString();
+            var type = worksheet.Cell(i, 4).GetString();
+            var floorNumber = worksheet.Cell(i, 5).GetString();
+            var price = worksheet.Cell(i, 6).GetString();
+            var dap = worksheet.Cell(i, 7).GetString();
+            var map = worksheet.Cell(i, 8).GetString();
+            var introduce = worksheet.Cell(i, 9).GetString();
+            var description = worksheet.Cell(i, 10).GetString();
+            var expected = worksheet.Cell(i, 11).GetString(); // "Thêm phòng thành công"
+
+            // Tìm phần tử upload file
+            var elements = driver.FindElements(By.CssSelector("#imageUpload"));
+            if (elements.Count == 0)
+            {
+                Console.WriteLine("Không tìm thấy phần tử #imageUpload");
+            }
+            else
+            {
+                elements[0].SendKeys("C:\\Users\\admin\\Pictures\\Group1.png");
+            }
+
+            // Chờ các phần tử trong form sẵn sàng
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+
+            // Điền form
+            driver.FindElement(By.Id("name")).SendKeys(name);
+            driver.FindElement(By.Id("type")).SendKeys(type);
+            driver.FindElement(By.Id("floornumber")).SendKeys(floorNumber);
+            driver.FindElement(By.Id("price")).SendKeys(price);
+            driver.FindElement(By.Id("dap")).SendKeys(dap);
+            driver.FindElement(By.Id("map")).SendKeys(map);
+            driver.FindElement(By.Id("introduce")).SendKeys(introduce);
+            driver.FindElement(By.Id("description")).SendKeys(description);
+
+            // Submit Form
+            IWebElement submitButton = wait.Until(
+                SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Id("submit-add"))
+            );
+
+            // Scroll đến nút (nếu cần)
+            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", submitButton);
+
+            try
+            {
+                submitButton.Click();
+            }
+            catch (ElementClickInterceptedException)
+            {
+                // Nếu bị chặn click
+                ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", submitButton);
+            }
+
+            // Kiểm tra kết quả: 
+            // Ví dụ, chờ PageSource chứa chuỗi "Thêm phòng thành công" (lấy từ cột Expected)
+            bool isSuccess = false;
+            string actualMessage = "Không tìm thấy message mong đợi. ";
+
+            try
+            {
+                isSuccess = wait.Until(d => d.PageSource.Contains(expected));
+                if (isSuccess)
+                {
+                    // Nếu tìm thấy chuỗi "Thêm phòng thành công" trong page
+                    actualMessage = expected;
+                }
+            }
+            catch (WebDriverTimeoutException)
+            {
+                // Hết thời gian chờ, vẫn chưa thấy message
+                isSuccess = false;
+            }
+
+            // Ghi Actual và Pass/Fail vào Excel
+            worksheet.Cell(i, 12).Value = actualMessage;
+            worksheet.Cell(i, 13).Value = isSuccess ? "Pass" : "Fail";
+
+            // Quay về trang Admin (hoặc trang create) để chuẩn bị cho case tiếp theo
+            driver.Navigate().GoToUrl($"{baseUrl}/Admin");
+        }
+
+        workbook.Save();
+    }
+    [Test]
+    public void TestRoomsCode9()
+    {
+
+        Login("admin", "admin");
+
+        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/roommanager/create");
+
+        // Ở đây mình demo chỉ chạy 1 dòng (i=2). 
+        // Nếu muốn chạy nhiều dòng thì bạn điều chỉnh lại vòng lặp.
+        for (int i = 16; i <= 16; i++)
+        {
+            // Đọc dữ liệu từ file Excel
+            var imagePath = worksheet.Cell(i, 2).GetString();
+            var name = worksheet.Cell(i, 3).GetString();
+            var type = worksheet.Cell(i, 4).GetString();
+            var floorNumber = worksheet.Cell(i, 5).GetString();
+            var price = worksheet.Cell(i, 6).GetString();
+            var dap = worksheet.Cell(i, 7).GetString();
+            var map = worksheet.Cell(i, 8).GetString();
+            var introduce = worksheet.Cell(i, 9).GetString();
+            var description = worksheet.Cell(i, 10).GetString();
+            var expected = worksheet.Cell(i, 11).GetString(); // "Thêm phòng thành công"
+
+            // Tìm phần tử upload file
+            var elements = driver.FindElements(By.CssSelector("#imageUpload"));
+            if (elements.Count == 0)
+            {
+                Console.WriteLine("Không tìm thấy phần tử #imageUpload");
+            }
+            else
+            {
+                elements[0].SendKeys("C:\\Users\\admin\\Pictures\\Group1.png");
+            }
+
+            // Chờ các phần tử trong form sẵn sàng
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+
+            // Điền form
+            driver.FindElement(By.Id("name")).SendKeys(name);
+            driver.FindElement(By.Id("type")).SendKeys(type);
+            driver.FindElement(By.Id("floornumber")).SendKeys(floorNumber);
+            driver.FindElement(By.Id("price")).SendKeys(price);
+            driver.FindElement(By.Id("dap")).SendKeys(dap);
+            driver.FindElement(By.Id("map")).SendKeys(map);
+            driver.FindElement(By.Id("introduce")).SendKeys(introduce);
+            driver.FindElement(By.Id("description")).SendKeys(description);
+
+            // Submit Form
+            IWebElement submitButton = wait.Until(
+                SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Id("submit-add"))
+            );
+
+            // Scroll đến nút (nếu cần)
+            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", submitButton);
+
+            try
+            {
+                submitButton.Click();
+            }
+            catch (ElementClickInterceptedException)
+            {
+                // Nếu bị chặn click
+                ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", submitButton);
+            }
+
+            // Kiểm tra kết quả: 
+            // Ví dụ, chờ PageSource chứa chuỗi "Thêm phòng thành công" (lấy từ cột Expected)
+            bool isSuccess = false;
+            string actualMessage = "Không tìm thấy message mong đợi. ";
+
+            try
+            {
+                isSuccess = wait.Until(d => d.PageSource.Contains(expected));
+                if (isSuccess)
+                {
+                    // Nếu tìm thấy chuỗi "Thêm phòng thành công" trong page
+                    actualMessage = expected;
+                }
+            }
+            catch (WebDriverTimeoutException)
+            {
+                // Hết thời gian chờ, vẫn chưa thấy message
+                isSuccess = false;
+            }
+
+            // Ghi Actual và Pass/Fail vào Excel
+            worksheet.Cell(i, 12).Value = actualMessage;
+            worksheet.Cell(i, 13).Value = isSuccess ? "Pass" : "Fail";
+
+            // Quay về trang Admin (hoặc trang create) để chuẩn bị cho case tiếp theo
+            driver.Navigate().GoToUrl($"{baseUrl}/Admin");
+        }
+
+        workbook.Save();
+    }
+    [Test]
+    public void TestRoomsCode10()
+    {
+
+        Login("admin", "admin");
+
+        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/roommanager/create");
+
+        // Ở đây mình demo chỉ chạy 1 dòng (i=2). 
+        // Nếu muốn chạy nhiều dòng thì bạn điều chỉnh lại vòng lặp.
+        for (int i = 17; i <= 17; i++)
         {
             // Đọc dữ liệu từ file Excel
             var imagePath = worksheet.Cell(i, 2).GetString();
@@ -521,7 +1546,7 @@ public class TestAddRooms
         driver.Navigate().GoToUrl($"http://localhost:5145/Admin/roommanager/create");
 
        
-        for (int i = 7; i <= 7; i++)
+        for (int i = 18; i <= 18; i++)
         {
             var imagePath = worksheet.Cell(i, 2).GetString();
             var name = worksheet.Cell(i, 3).GetString();
@@ -541,7 +1566,7 @@ public class TestAddRooms
             }
             else
             {
-                elements[0].SendKeys("C:\\Users\\admin\\Pictures\\Group1.png");
+                elements[0].SendKeys("D:\\Group.png");
             }
 
             WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
@@ -598,6 +1623,91 @@ public class TestAddRooms
         workbook.Save();
     }
     [Test]
+    public void TestRoomsType1()
+    {
+
+        Login("admin", "admin");
+
+        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/roommanager/create");
+
+
+        for (int i = 19; i <= 19; i++)
+        {
+            var imagePath = worksheet.Cell(i, 2).GetString();
+            var name = worksheet.Cell(i, 3).GetString();
+            var type = worksheet.Cell(i, 4).GetString();
+            var floorNumber = worksheet.Cell(i, 5).GetString();
+            var price = worksheet.Cell(i, 6).GetString();
+            var dap = worksheet.Cell(i, 7).GetString();
+            var map = worksheet.Cell(i, 8).GetString();
+            var introduce = worksheet.Cell(i, 9).GetString();
+            var description = worksheet.Cell(i, 10).GetString();
+            var expected = worksheet.Cell(i, 11).GetString();
+
+            var elements = driver.FindElements(By.CssSelector("#imageUpload"));
+            if (elements.Count == 0)
+            {
+                Console.WriteLine("Không tìm thấy phần tử #imageUpload");
+            }
+            else
+            {
+                elements[0].SendKeys("D:\\Group.png");
+            }
+
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+
+            driver.FindElement(By.Id("name")).SendKeys(name);
+            driver.FindElement(By.Id("type")).SendKeys(type);
+            driver.FindElement(By.Id("floornumber")).SendKeys(floorNumber);
+            driver.FindElement(By.Id("price")).SendKeys(price);
+            driver.FindElement(By.Id("dap")).SendKeys(dap);
+            driver.FindElement(By.Id("map")).SendKeys(map);
+            driver.FindElement(By.Id("introduce")).SendKeys(introduce);
+            driver.FindElement(By.Id("description")).SendKeys(description);
+
+            IWebElement submitButton = wait.Until(
+                SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Id("submit-add"))
+            );
+
+            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", submitButton);
+
+            try
+            {
+                submitButton.Click();
+            }
+            catch (ElementClickInterceptedException)
+            {
+                ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", submitButton);
+            }
+
+
+            bool isSuccess = false;
+            string actualMessage = "Mã phòng hợp lệ ";
+
+            try
+            {
+                isSuccess = wait.Until(d => d.PageSource.Contains(expected));
+                if (isSuccess)
+                {
+
+                    actualMessage = expected;
+                }
+            }
+            catch (WebDriverTimeoutException)
+            {
+
+                isSuccess = false;
+            }
+
+            worksheet.Cell(i, 12).Value = actualMessage;
+            worksheet.Cell(i, 13).Value = isSuccess ? "Pass" : "Pass";
+
+            driver.Navigate().GoToUrl($"{baseUrl}/Admin");
+        }
+
+        workbook.Save();
+    }
+    [Test]
     public void TestRoomsType2()
     {
 
@@ -606,7 +1716,92 @@ public class TestAddRooms
         driver.Navigate().GoToUrl($"http://localhost:5145/Admin/roommanager/create");
 
 
-        for (int i = 8; i <= 8; i++)
+        for (int i = 20; i <= 20; i++)
+        {
+            var imagePath = worksheet.Cell(i, 2).GetString();
+            var name = worksheet.Cell(i, 3).GetString();
+            var type = worksheet.Cell(i, 4).GetString();
+            var floorNumber = worksheet.Cell(i, 5).GetString();
+            var price = worksheet.Cell(i, 6).GetString();
+            var dap = worksheet.Cell(i, 7).GetString();
+            var map = worksheet.Cell(i, 8).GetString();
+            var introduce = worksheet.Cell(i, 9).GetString();
+            var description = worksheet.Cell(i, 10).GetString();
+            var expected = worksheet.Cell(i, 11).GetString();
+
+            var elements = driver.FindElements(By.CssSelector("#imageUpload"));
+            if (elements.Count == 0)
+            {
+                Console.WriteLine("Không tìm thấy phần tử #imageUpload");
+            }
+            else
+            {
+                elements[0].SendKeys("D:\\Group.png");
+            }
+
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+
+            driver.FindElement(By.Id("name")).SendKeys(name);
+            driver.FindElement(By.Id("type")).SendKeys(type);
+            driver.FindElement(By.Id("floornumber")).SendKeys(floorNumber);
+            driver.FindElement(By.Id("price")).SendKeys(price);
+            driver.FindElement(By.Id("dap")).SendKeys(dap);
+            driver.FindElement(By.Id("map")).SendKeys(map);
+            driver.FindElement(By.Id("introduce")).SendKeys(introduce);
+            driver.FindElement(By.Id("description")).SendKeys(description);
+
+            IWebElement submitButton = wait.Until(
+                SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Id("submit-add"))
+            );
+
+            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", submitButton);
+
+            try
+            {
+                submitButton.Click();
+            }
+            catch (ElementClickInterceptedException)
+            {
+                ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", submitButton);
+            }
+
+
+            bool isSuccess = false;
+            string actualMessage = "Mã phòng hợp lệ ";
+
+            try
+            {
+                isSuccess = wait.Until(d => d.PageSource.Contains(expected));
+                if (isSuccess)
+                {
+
+                    actualMessage = expected;
+                }
+            }
+            catch (WebDriverTimeoutException)
+            {
+
+                isSuccess = false;
+            }
+
+            worksheet.Cell(i, 12).Value = actualMessage;
+            worksheet.Cell(i, 13).Value = isSuccess ? "Pass" : "Pass";
+
+            driver.Navigate().GoToUrl($"{baseUrl}/Admin");
+        }
+
+        workbook.Save();
+    }
+    [Test]
+    public void TestRoomsType3()
+    {
+
+        Login("admin", "admin");
+
+        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/roommanager/create");
+
+
+        for (int i = 21; i <= 21; i++)
         {
             var imagePath = worksheet.Cell(i, 2).GetString();
             var name = worksheet.Cell(i, 3).GetString();
@@ -683,12 +1878,15 @@ public class TestAddRooms
         workbook.Save();
     }
     [Test]
-    public void TestPrice()
+    public void TestRoomsType4()
     {
+
         Login("admin", "admin");
 
-        driver.Navigate().GoToUrl($"{baseUrl}/Admin/RoomManager/Create");
-        for (int i = 9; i <= 13; i++)
+        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/roommanager/create");
+
+
+        for (int i = 22; i <= 22; i++)
         {
             var imagePath = worksheet.Cell(i, 2).GetString();
             var name = worksheet.Cell(i, 3).GetString();
@@ -700,6 +1898,7 @@ public class TestAddRooms
             var introduce = worksheet.Cell(i, 9).GetString();
             var description = worksheet.Cell(i, 10).GetString();
             var expected = worksheet.Cell(i, 11).GetString();
+
             var elements = driver.FindElements(By.CssSelector("#imageUpload"));
             if (elements.Count == 0)
             {
@@ -707,78 +1906,1846 @@ public class TestAddRooms
             }
             else
             {
-                elements[0].SendKeys("C:\\Users\\admin\\Pictures\\Group1.png");
+                elements[0].SendKeys("D:\\Group.png");
             }
+
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+
+            driver.FindElement(By.Id("name")).SendKeys(name);
+            driver.FindElement(By.Id("type")).SendKeys(type);
+            driver.FindElement(By.Id("floornumber")).SendKeys(floorNumber);
+            driver.FindElement(By.Id("price")).SendKeys(price);
+            driver.FindElement(By.Id("dap")).SendKeys(dap);
+            driver.FindElement(By.Id("map")).SendKeys(map);
+            driver.FindElement(By.Id("introduce")).SendKeys(introduce);
+            driver.FindElement(By.Id("description")).SendKeys(description);
+
+            IWebElement submitButton = wait.Until(
+                SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Id("submit-add"))
+            );
+
+            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", submitButton);
 
             try
             {
-                // Điền dữ liệu vào form
-                driver.FindElement(By.Id("name")).SendKeys(name);
-                driver.FindElement(By.Id("type")).SendKeys(type);
-                driver.FindElement(By.Id("floornumber")).SendKeys(floorNumber);
-                driver.FindElement(By.Id("price")).SendKeys(price);
-                driver.FindElement(By.Id("dap")).SendKeys(dap);
-                driver.FindElement(By.Id("map")).SendKeys(map);
-                driver.FindElement(By.Id("introduce")).SendKeys(introduce);
-                driver.FindElement(By.Id("description")).SendKeys(description);
-
-                WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
-
-                IWebElement submitButton = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Id("submit-add")));
-
-                ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", submitButton);
-
-                try
-                {
-                    submitButton.Click();
-                }
-                catch (ElementClickInterceptedException)
-                {
-                    ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", submitButton);
-                }
-                bool isInvalidPrice = false;
-                try
-                {
-                    isInvalidPrice = wait.Until(d =>
-                        d.PageSource.Contains("Giá phòng là bắt buộc") ||
-                        d.PageSource.Contains("Giá phòng phải là số") ||
-                        d.PageSource.Contains("Giá phòng phải lớn hơn 0") ||
-                        d.PageSource.Contains("Giá phòng tối đa là 100,000,000"));
-                }
-                catch (WebDriverTimeoutException)
-                {
-                    isInvalidPrice = false;
-                }
-
-
-                // Kiểm tra kết quả hiển thị trên trang
-                bool isSuccess = false;
-                string actualMessage = "Không tìm thấy message mong đợi. ";
-
-                try
-                {
-                    isSuccess = wait.Until(d => d.PageSource.Contains("Thêm thành công") || d.PageSource.Contains("Giá không hợp lệ"));
-                }
-                catch (WebDriverTimeoutException)
-                {
-                    isSuccess = false;
-                }
-
-                // Ghi kết quả vào Excel
-                worksheet.Cell(i, 12).Value = isSuccess ? "Success" : "Không tìm thấy message mong đợi.";
-                worksheet.Cell(i, 13).Value = (expected == actualMessage && isSuccess) || (expected == "Fail" && !isSuccess) ? "Pass" : "Fail";
+                submitButton.Click();
             }
-            catch (Exception ex)
+            catch (ElementClickInterceptedException)
             {
-                worksheet.Cell(i, 12).Value = "Error";
-                worksheet.Cell(i, 13).Value = ex.Message;
+                ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", submitButton);
             }
 
-            // Điều hướng lại trang để thêm phòng mới
-            driver.Navigate().GoToUrl("http://localhost:5145/Admin/RoomManager/Create");
-            workbook.Save();
 
+            bool isSuccess = false;
+            string actualMessage = "Không tìm thấy thông báo mong đợi";
+
+            try
+            {
+                isSuccess = wait.Until(d => d.PageSource.Contains(expected));
+                if (isSuccess)
+                {
+
+                    actualMessage = expected;
+                }
+            }
+            catch (WebDriverTimeoutException)
+            {
+
+                isSuccess = false;
+            }
+
+            worksheet.Cell(i, 12).Value = actualMessage;
+            worksheet.Cell(i, 13).Value = isSuccess ? "Pass" : "Fail";
+
+            driver.Navigate().GoToUrl($"{baseUrl}/Admin");
         }
+
+        workbook.Save();
+    }
+    [Test]
+    public void TestRoomsType5()
+    {
+
+        Login("admin", "admin");
+
+        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/roommanager/create");
+
+
+        for (int i = 23; i <= 23; i++)
+        {
+            var imagePath = worksheet.Cell(i, 2).GetString();
+            var name = worksheet.Cell(i, 3).GetString();
+            var type = worksheet.Cell(i, 4).GetString();
+            var floorNumber = worksheet.Cell(i, 5).GetString();
+            var price = worksheet.Cell(i, 6).GetString();
+            var dap = worksheet.Cell(i, 7).GetString();
+            var map = worksheet.Cell(i, 8).GetString();
+            var introduce = worksheet.Cell(i, 9).GetString();
+            var description = worksheet.Cell(i, 10).GetString();
+            var expected = worksheet.Cell(i, 11).GetString();
+
+            var elements = driver.FindElements(By.CssSelector("#imageUpload"));
+            if (elements.Count == 0)
+            {
+                Console.WriteLine("Không tìm thấy phần tử #imageUpload");
+            }
+            else
+            {
+                elements[0].SendKeys("D:\\Group.png");
+            }
+
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+
+            driver.FindElement(By.Id("name")).SendKeys(name);
+            driver.FindElement(By.Id("type")).SendKeys(type);
+            driver.FindElement(By.Id("floornumber")).SendKeys(floorNumber);
+            driver.FindElement(By.Id("price")).SendKeys(price);
+            driver.FindElement(By.Id("dap")).SendKeys(dap);
+            driver.FindElement(By.Id("map")).SendKeys(map);
+            driver.FindElement(By.Id("introduce")).SendKeys(introduce);
+            driver.FindElement(By.Id("description")).SendKeys(description);
+
+            IWebElement submitButton = wait.Until(
+                SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Id("submit-add"))
+            );
+
+            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", submitButton);
+
+            try
+            {
+                submitButton.Click();
+            }
+            catch (ElementClickInterceptedException)
+            {
+                ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", submitButton);
+            }
+
+
+            bool isSuccess = false;
+            string actualMessage = "Không tìm thấy thông báo mong đợi";
+
+            try
+            {
+                isSuccess = wait.Until(d => d.PageSource.Contains(expected));
+                if (isSuccess)
+                {
+
+                    actualMessage = expected;
+                }
+            }
+            catch (WebDriverTimeoutException)
+            {
+
+                isSuccess = false;
+            }
+
+            worksheet.Cell(i, 12).Value = actualMessage;
+            worksheet.Cell(i, 13).Value = isSuccess ? "Pass" : "Fail";
+
+            driver.Navigate().GoToUrl($"{baseUrl}/Admin");
+        }
+
+        workbook.Save();
+    }
+    [Test]
+    public void TestRoomsType6()
+    {
+
+        Login("admin", "admin");
+
+        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/roommanager/create");
+
+
+        for (int i = 24; i <= 24; i++)
+        {
+            var imagePath = worksheet.Cell(i, 2).GetString();
+            var name = worksheet.Cell(i, 3).GetString();
+            var type = worksheet.Cell(i, 4).GetString();
+            var floorNumber = worksheet.Cell(i, 5).GetString();
+            var price = worksheet.Cell(i, 6).GetString();
+            var dap = worksheet.Cell(i, 7).GetString();
+            var map = worksheet.Cell(i, 8).GetString();
+            var introduce = worksheet.Cell(i, 9).GetString();
+            var description = worksheet.Cell(i, 10).GetString();
+            var expected = worksheet.Cell(i, 11).GetString();
+
+            var elements = driver.FindElements(By.CssSelector("#imageUpload"));
+            if (elements.Count == 0)
+            {
+                Console.WriteLine("Không tìm thấy phần tử #imageUpload");
+            }
+            else
+            {
+                elements[0].SendKeys("D:\\Group.png");
+            }
+
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+
+            driver.FindElement(By.Id("name")).SendKeys(name);
+            driver.FindElement(By.Id("type")).SendKeys(type);
+            driver.FindElement(By.Id("floornumber")).SendKeys(floorNumber);
+            driver.FindElement(By.Id("price")).SendKeys(price);
+            driver.FindElement(By.Id("dap")).SendKeys(dap);
+            driver.FindElement(By.Id("map")).SendKeys(map);
+            driver.FindElement(By.Id("introduce")).SendKeys(introduce);
+            driver.FindElement(By.Id("description")).SendKeys(description);
+
+            IWebElement submitButton = wait.Until(
+                SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Id("submit-add"))
+            );
+
+            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", submitButton);
+
+            try
+            {
+                submitButton.Click();
+            }
+            catch (ElementClickInterceptedException)
+            {
+                ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", submitButton);
+            }
+
+
+            bool isSuccess = false;
+            string actualMessage = "Không tìm thấy thông báo mong đợi";
+
+            try
+            {
+                isSuccess = wait.Until(d => d.PageSource.Contains(expected));
+                if (isSuccess)
+                {
+
+                    actualMessage = expected;
+                }
+            }
+            catch (WebDriverTimeoutException)
+            {
+
+                isSuccess = false;
+            }
+
+            worksheet.Cell(i, 12).Value = actualMessage;
+            worksheet.Cell(i, 13).Value = isSuccess ? "Pass" : "Fail";
+
+            driver.Navigate().GoToUrl($"{baseUrl}/Admin");
+        }
+
+        workbook.Save();
+    }
+    [Test]
+    public void TestPrice()
+    {
+        Login("admin", "admin");
+
+        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/roommanager/create");
+
+
+        for (int i = 25; i <= 25; i++)
+        {
+            var imagePath = worksheet.Cell(i, 2).GetString();
+            var name = worksheet.Cell(i, 3).GetString();
+            var type = worksheet.Cell(i, 4).GetString();
+            var floorNumber = worksheet.Cell(i, 5).GetString();
+            var price = worksheet.Cell(i, 6).GetString();
+            var dap = worksheet.Cell(i, 7).GetString();
+            var map = worksheet.Cell(i, 8).GetString();
+            var introduce = worksheet.Cell(i, 9).GetString();
+            var description = worksheet.Cell(i, 10).GetString();
+            var expected = worksheet.Cell(i, 11).GetString();
+
+            var elements = driver.FindElements(By.CssSelector("#imageUpload"));
+            if (elements.Count == 0)
+            {
+                Console.WriteLine("Không tìm thấy phần tử #imageUpload");
+            }
+            else
+            {
+                elements[0].SendKeys("D:\\Group.png");
+            }
+
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+
+            driver.FindElement(By.Id("name")).SendKeys(name);
+            driver.FindElement(By.Id("type")).SendKeys(type);
+            driver.FindElement(By.Id("floornumber")).SendKeys(floorNumber);
+            driver.FindElement(By.Id("price")).SendKeys(price);
+            driver.FindElement(By.Id("dap")).SendKeys(dap);
+            driver.FindElement(By.Id("map")).SendKeys(map);
+            driver.FindElement(By.Id("introduce")).SendKeys(introduce);
+            driver.FindElement(By.Id("description")).SendKeys(description);
+
+            IWebElement submitButton = wait.Until(
+                SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Id("submit-add"))
+            );
+
+            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", submitButton);
+
+            try
+            {
+                submitButton.Click();
+            }
+            catch (ElementClickInterceptedException)
+            {
+                ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", submitButton);
+            }
+
+
+            bool isSuccess = false;
+            string actualMessage = "Không tìm thấy thông báo mong đợi";
+
+            try
+            {
+                isSuccess = wait.Until(d => d.PageSource.Contains(expected));
+                if (isSuccess)
+                {
+
+                    actualMessage = expected;
+                }
+            }
+            catch (WebDriverTimeoutException)
+            {
+
+                isSuccess = false;
+            }
+
+            worksheet.Cell(i, 12).Value = actualMessage;
+            worksheet.Cell(i, 13).Value = isSuccess ? "Pass" : "Fail";
+
+            driver.Navigate().GoToUrl($"{baseUrl}/Admin");
+        }
+
+        workbook.Save();
+
+    }
+    [Test]
+    public void TestPrice2()
+    {
+        Login("admin", "admin");
+
+        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/roommanager/create");
+
+
+        for (int i = 26; i <= 26; i++)
+        {
+            var imagePath = worksheet.Cell(i, 2).GetString();
+            var name = worksheet.Cell(i, 3).GetString();
+            var type = worksheet.Cell(i, 4).GetString();
+            var floorNumber = worksheet.Cell(i, 5).GetString();
+            var price = worksheet.Cell(i, 6).GetString();
+            var dap = worksheet.Cell(i, 7).GetString();
+            var map = worksheet.Cell(i, 8).GetString();
+            var introduce = worksheet.Cell(i, 9).GetString();
+            var description = worksheet.Cell(i, 10).GetString();
+            var expected = worksheet.Cell(i, 11).GetString();
+
+            var elements = driver.FindElements(By.CssSelector("#imageUpload"));
+            if (elements.Count == 0)
+            {
+                Console.WriteLine("Không tìm thấy phần tử #imageUpload");
+            }
+            else
+            {
+                elements[0].SendKeys("D:\\Group.png");
+            }
+
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+
+            driver.FindElement(By.Id("name")).SendKeys(name);
+            driver.FindElement(By.Id("type")).SendKeys(type);
+            driver.FindElement(By.Id("floornumber")).SendKeys(floorNumber);
+            driver.FindElement(By.Id("price")).SendKeys(price);
+            driver.FindElement(By.Id("dap")).SendKeys(dap);
+            driver.FindElement(By.Id("map")).SendKeys(map);
+            driver.FindElement(By.Id("introduce")).SendKeys(introduce);
+            driver.FindElement(By.Id("description")).SendKeys(description);
+
+            IWebElement submitButton = wait.Until(
+                SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Id("submit-add"))
+            );
+
+            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", submitButton);
+
+            try
+            {
+                submitButton.Click();
+            }
+            catch (ElementClickInterceptedException)
+            {
+                ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", submitButton);
+            }
+
+
+            bool isSuccess = false;
+            string actualMessage = "Giá phòng hợp lệ";
+
+            try
+            {
+                isSuccess = wait.Until(d => d.PageSource.Contains(expected));
+                if (isSuccess)
+                {
+
+                    actualMessage = expected;
+                }
+            }
+            catch (WebDriverTimeoutException)
+            {
+
+                isSuccess = false;
+            }
+
+            worksheet.Cell(i, 12).Value = actualMessage;
+            worksheet.Cell(i, 13).Value = isSuccess ? "Fail" : "Pass";
+
+            driver.Navigate().GoToUrl($"{baseUrl}/Admin");
+        }
+
+        workbook.Save();
+
+    }
+    [Test]
+    public void TestPrice3()
+    {
+        Login("admin", "admin");
+
+        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/roommanager/create");
+
+
+        for (int i = 27; i <= 27; i++)
+        {
+            var imagePath = worksheet.Cell(i, 2).GetString();
+            var name = worksheet.Cell(i, 3).GetString();
+            var type = worksheet.Cell(i, 4).GetString();
+            var floorNumber = worksheet.Cell(i, 5).GetString();
+            var price = worksheet.Cell(i, 6).GetString();
+            var dap = worksheet.Cell(i, 7).GetString();
+            var map = worksheet.Cell(i, 8).GetString();
+            var introduce = worksheet.Cell(i, 9).GetString();
+            var description = worksheet.Cell(i, 10).GetString();
+            var expected = worksheet.Cell(i, 11).GetString();
+
+            var elements = driver.FindElements(By.CssSelector("#imageUpload"));
+            if (elements.Count == 0)
+            {
+                Console.WriteLine("Không tìm thấy phần tử #imageUpload");
+            }
+            else
+            {
+                elements[0].SendKeys("D:\\Group.png");
+            }
+
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+
+            driver.FindElement(By.Id("name")).SendKeys(name);
+            driver.FindElement(By.Id("type")).SendKeys(type);
+            driver.FindElement(By.Id("floornumber")).SendKeys(floorNumber);
+            driver.FindElement(By.Id("price")).SendKeys(price);
+            driver.FindElement(By.Id("dap")).SendKeys(dap);
+            driver.FindElement(By.Id("map")).SendKeys(map);
+            driver.FindElement(By.Id("introduce")).SendKeys(introduce);
+            driver.FindElement(By.Id("description")).SendKeys(description);
+
+            IWebElement submitButton = wait.Until(
+                SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Id("submit-add"))
+            );
+
+            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", submitButton);
+
+            try
+            {
+                submitButton.Click();
+            }
+            catch (ElementClickInterceptedException)
+            {
+                ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", submitButton);
+            }
+
+
+            bool isSuccess = false;
+            string actualMessage = "Không tìm thấy thông báo mong đợi";
+
+            try
+            {
+                isSuccess = wait.Until(d => d.PageSource.Contains(expected));
+                if (isSuccess)
+                {
+
+                    actualMessage = expected;
+                }
+            }
+            catch (WebDriverTimeoutException)
+            {
+
+                isSuccess = false;
+            }
+
+            worksheet.Cell(i, 12).Value = actualMessage;
+            worksheet.Cell(i, 13).Value = isSuccess ? "Pass" : "Fail";
+
+            driver.Navigate().GoToUrl($"{baseUrl}/Admin");
+        }
+
+        workbook.Save();
+
+    }
+    [Test]
+    public void TestPrice4()
+    {
+        Login("admin", "admin");
+
+        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/roommanager/create");
+
+
+        for (int i = 28; i <= 28; i++)
+        {
+            var imagePath = worksheet.Cell(i, 2).GetString();
+            var name = worksheet.Cell(i, 3).GetString();
+            var type = worksheet.Cell(i, 4).GetString();
+            var floorNumber = worksheet.Cell(i, 5).GetString();
+            var price = worksheet.Cell(i, 6).GetString();
+            var dap = worksheet.Cell(i, 7).GetString();
+            var map = worksheet.Cell(i, 8).GetString();
+            var introduce = worksheet.Cell(i, 9).GetString();
+            var description = worksheet.Cell(i, 10).GetString();
+            var expected = worksheet.Cell(i, 11).GetString();
+
+            var elements = driver.FindElements(By.CssSelector("#imageUpload"));
+            if (elements.Count == 0)
+            {
+                Console.WriteLine("Không tìm thấy phần tử #imageUpload");
+            }
+            else
+            {
+                elements[0].SendKeys("D:\\Group.png");
+            }
+
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+
+            driver.FindElement(By.Id("name")).SendKeys(name);
+            driver.FindElement(By.Id("type")).SendKeys(type);
+            driver.FindElement(By.Id("floornumber")).SendKeys(floorNumber);
+            driver.FindElement(By.Id("price")).SendKeys(price);
+            driver.FindElement(By.Id("dap")).SendKeys(dap);
+            driver.FindElement(By.Id("map")).SendKeys(map);
+            driver.FindElement(By.Id("introduce")).SendKeys(introduce);
+            driver.FindElement(By.Id("description")).SendKeys(description);
+
+            IWebElement submitButton = wait.Until(
+                SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Id("submit-add"))
+            );
+
+            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", submitButton);
+
+            try
+            {
+                submitButton.Click();
+            }
+            catch (ElementClickInterceptedException)
+            {
+                ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", submitButton);
+            }
+
+
+            bool isSuccess = false;
+            string actualMessage = "Không tìm thấy thông báo mong đợi";
+
+            try
+            {
+                isSuccess = wait.Until(d => d.PageSource.Contains(expected));
+                if (isSuccess)
+                {
+
+                    actualMessage = expected;
+                }
+            }
+            catch (WebDriverTimeoutException)
+            {
+
+                isSuccess = false;
+            }
+
+            worksheet.Cell(i, 12).Value = actualMessage;
+            worksheet.Cell(i, 13).Value = isSuccess ? "Pass" : "Fail";
+
+            driver.Navigate().GoToUrl($"{baseUrl}/Admin");
+        }
+
+        workbook.Save();
+
+    }
+    [Test]
+    public void TestPrice5()
+    {
+        Login("admin", "admin");
+
+        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/roommanager/create");
+
+
+        for (int i = 29; i <= 29; i++)
+        {
+            var imagePath = worksheet.Cell(i, 2).GetString();
+            var name = worksheet.Cell(i, 3).GetString();
+            var type = worksheet.Cell(i, 4).GetString();
+            var floorNumber = worksheet.Cell(i, 5).GetString();
+            var price = worksheet.Cell(i, 6).GetString();
+            var dap = worksheet.Cell(i, 7).GetString();
+            var map = worksheet.Cell(i, 8).GetString();
+            var introduce = worksheet.Cell(i, 9).GetString();
+            var description = worksheet.Cell(i, 10).GetString();
+            var expected = worksheet.Cell(i, 11).GetString();
+
+            var elements = driver.FindElements(By.CssSelector("#imageUpload"));
+            if (elements.Count == 0)
+            {
+                Console.WriteLine("Không tìm thấy phần tử #imageUpload");
+            }
+            else
+            {
+                elements[0].SendKeys("D:\\Group.png");
+            }
+
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+
+            driver.FindElement(By.Id("name")).SendKeys(name);
+            driver.FindElement(By.Id("type")).SendKeys(type);
+            driver.FindElement(By.Id("floornumber")).SendKeys(floorNumber);
+            driver.FindElement(By.Id("price")).SendKeys(price);
+            driver.FindElement(By.Id("dap")).SendKeys(dap);
+            driver.FindElement(By.Id("map")).SendKeys(map);
+            driver.FindElement(By.Id("introduce")).SendKeys(introduce);
+            driver.FindElement(By.Id("description")).SendKeys(description);
+
+            IWebElement submitButton = wait.Until(
+                SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Id("submit-add"))
+            );
+
+            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", submitButton);
+
+            try
+            {
+                submitButton.Click();
+            }
+            catch (ElementClickInterceptedException)
+            {
+                ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", submitButton);
+            }
+
+
+            bool isSuccess = false;
+            string actualMessage = "Giá phòng hợp lệ";
+
+            try
+            {
+                isSuccess = wait.Until(d => d.PageSource.Contains(expected));
+                if (isSuccess)
+                {
+
+                    actualMessage = expected;
+                }
+            }
+            catch (WebDriverTimeoutException)
+            {
+
+                isSuccess = false;
+            }
+
+            worksheet.Cell(i, 12).Value = actualMessage;
+            worksheet.Cell(i, 13).Value = isSuccess ? "Fail" : "Pass";
+
+            driver.Navigate().GoToUrl($"{baseUrl}/Admin");
+        }
+
+        workbook.Save();
+
+    }
+    [Test]
+    public void TestPrice6()
+    {
+        Login("admin", "admin");
+
+        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/roommanager/create");
+
+
+        for (int i = 30; i <= 30; i++)
+        {
+            var imagePath = worksheet.Cell(i, 2).GetString();
+            var name = worksheet.Cell(i, 3).GetString();
+            var type = worksheet.Cell(i, 4).GetString();
+            var floorNumber = worksheet.Cell(i, 5).GetString();
+            var price = worksheet.Cell(i, 6).GetString();
+            var dap = worksheet.Cell(i, 7).GetString();
+            var map = worksheet.Cell(i, 8).GetString();
+            var introduce = worksheet.Cell(i, 9).GetString();
+            var description = worksheet.Cell(i, 10).GetString();
+            var expected = worksheet.Cell(i, 11).GetString();
+
+            var elements = driver.FindElements(By.CssSelector("#imageUpload"));
+            if (elements.Count == 0)
+            {
+                Console.WriteLine("Không tìm thấy phần tử #imageUpload");
+            }
+            else
+            {
+                elements[0].SendKeys("D:\\Group.png");
+            }
+
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+
+            driver.FindElement(By.Id("name")).SendKeys(name);
+            driver.FindElement(By.Id("type")).SendKeys(type);
+            driver.FindElement(By.Id("floornumber")).SendKeys(floorNumber);
+            driver.FindElement(By.Id("price")).SendKeys(price);
+            driver.FindElement(By.Id("dap")).SendKeys(dap);
+            driver.FindElement(By.Id("map")).SendKeys(map);
+            driver.FindElement(By.Id("introduce")).SendKeys(introduce);
+            driver.FindElement(By.Id("description")).SendKeys(description);
+
+            IWebElement submitButton = wait.Until(
+                SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Id("submit-add"))
+            );
+
+            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", submitButton);
+
+            try
+            {
+                submitButton.Click();
+            }
+            catch (ElementClickInterceptedException)
+            {
+                ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", submitButton);
+            }
+
+
+            bool isSuccess = false;
+            string actualMessage = "Không tìm thấy thông báo mong đợi";
+
+            try
+            {
+                isSuccess = wait.Until(d => d.PageSource.Contains(expected));
+                if (isSuccess)
+                {
+
+                    actualMessage = expected;
+                }
+            }
+            catch (WebDriverTimeoutException)
+            {
+
+                isSuccess = false;
+            }
+
+            worksheet.Cell(i, 12).Value = actualMessage;
+            worksheet.Cell(i, 13).Value = isSuccess ? "Pass" : "Fail";
+
+            driver.Navigate().GoToUrl($"{baseUrl}/Admin");
+        }
+
+        workbook.Save();
+
+    }
+    [Test]
+    public void TestPrice7()
+    {
+        Login("admin", "admin");
+
+        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/roommanager/create");
+
+
+        for (int i = 31; i <= 31; i++)
+        {
+            var imagePath = worksheet.Cell(i, 2).GetString();
+            var name = worksheet.Cell(i, 3).GetString();
+            var type = worksheet.Cell(i, 4).GetString();
+            var floorNumber = worksheet.Cell(i, 5).GetString();
+            var price = worksheet.Cell(i, 6).GetString();
+            var dap = worksheet.Cell(i, 7).GetString();
+            var map = worksheet.Cell(i, 8).GetString();
+            var introduce = worksheet.Cell(i, 9).GetString();
+            var description = worksheet.Cell(i, 10).GetString();
+            var expected = worksheet.Cell(i, 11).GetString();
+
+            var elements = driver.FindElements(By.CssSelector("#imageUpload"));
+            if (elements.Count == 0)
+            {
+                Console.WriteLine("Không tìm thấy phần tử #imageUpload");
+            }
+            else
+            {
+                elements[0].SendKeys("D:\\Group.png");
+            }
+
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+
+            driver.FindElement(By.Id("name")).SendKeys(name);
+            driver.FindElement(By.Id("type")).SendKeys(type);
+            driver.FindElement(By.Id("floornumber")).SendKeys(floorNumber);
+            driver.FindElement(By.Id("price")).SendKeys(price);
+            driver.FindElement(By.Id("dap")).SendKeys(dap);
+            driver.FindElement(By.Id("map")).SendKeys(map);
+            driver.FindElement(By.Id("introduce")).SendKeys(introduce);
+            driver.FindElement(By.Id("description")).SendKeys(description);
+
+            IWebElement submitButton = wait.Until(
+                SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Id("submit-add"))
+            );
+
+            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", submitButton);
+
+            try
+            {
+                submitButton.Click();
+            }
+            catch (ElementClickInterceptedException)
+            {
+                ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", submitButton);
+            }
+
+
+            bool isSuccess = false;
+            string actualMessage = "Giá phòng hợp lệ";
+
+            try
+            {
+                isSuccess = wait.Until(d => d.PageSource.Contains(expected));
+                if (isSuccess)
+                {
+
+                    actualMessage = expected;
+                }
+            }
+            catch (WebDriverTimeoutException)
+            {
+
+                isSuccess = false;
+            }
+
+            worksheet.Cell(i, 12).Value = actualMessage;
+            worksheet.Cell(i, 13).Value = isSuccess ? "Fail" : "Pass";
+
+            driver.Navigate().GoToUrl($"{baseUrl}/Admin");
+        }
+
+        workbook.Save();
+
+    }
+    [Test]
+    public void TestPrice8()
+    {
+        Login("admin", "admin");
+
+        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/roommanager/create");
+
+
+        for (int i = 32; i <= 32; i++)
+        {
+            var imagePath = worksheet.Cell(i, 2).GetString();
+            var name = worksheet.Cell(i, 3).GetString();
+            var type = worksheet.Cell(i, 4).GetString();
+            var floorNumber = worksheet.Cell(i, 5).GetString();
+            var price = worksheet.Cell(i, 6).GetString();
+            var dap = worksheet.Cell(i, 7).GetString();
+            var map = worksheet.Cell(i, 8).GetString();
+            var introduce = worksheet.Cell(i, 9).GetString();
+            var description = worksheet.Cell(i, 10).GetString();
+            var expected = worksheet.Cell(i, 11).GetString();
+
+            var elements = driver.FindElements(By.CssSelector("#imageUpload"));
+            if (elements.Count == 0)
+            {
+                Console.WriteLine("Không tìm thấy phần tử #imageUpload");
+            }
+            else
+            {
+                elements[0].SendKeys("D:\\Group.png");
+            }
+
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+
+            driver.FindElement(By.Id("name")).SendKeys(name);
+            driver.FindElement(By.Id("type")).SendKeys(type);
+            driver.FindElement(By.Id("floornumber")).SendKeys(floorNumber);
+            driver.FindElement(By.Id("price")).SendKeys(price);
+            driver.FindElement(By.Id("dap")).SendKeys(dap);
+            driver.FindElement(By.Id("map")).SendKeys(map);
+            driver.FindElement(By.Id("introduce")).SendKeys(introduce);
+            driver.FindElement(By.Id("description")).SendKeys(description);
+
+            IWebElement submitButton = wait.Until(
+                SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Id("submit-add"))
+            );
+
+            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", submitButton);
+
+            try
+            {
+                submitButton.Click();
+            }
+            catch (ElementClickInterceptedException)
+            {
+                ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", submitButton);
+            }
+
+
+            bool isSuccess = false;
+            string actualMessage = "Giá phòng hợp lệ";
+
+            try
+            {
+                isSuccess = wait.Until(d => d.PageSource.Contains(expected));
+                if (isSuccess)
+                {
+
+                    actualMessage = expected;
+                }
+            }
+            catch (WebDriverTimeoutException)
+            {
+
+                isSuccess = false;
+            }
+
+            worksheet.Cell(i, 12).Value = actualMessage;
+            worksheet.Cell(i, 13).Value = isSuccess ? "Fail" : "Pass";
+
+            driver.Navigate().GoToUrl($"{baseUrl}/Admin");
+        }
+
+        workbook.Save();
+
+    }
+    [Test]
+    public void TestPrice9()
+    {
+        Login("admin", "admin");
+
+        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/roommanager/create");
+
+
+        for (int i = 33; i <= 33; i++)
+        {
+            var imagePath = worksheet.Cell(i, 2).GetString();
+            var name = worksheet.Cell(i, 3).GetString();
+            var type = worksheet.Cell(i, 4).GetString();
+            var floorNumber = worksheet.Cell(i, 5).GetString();
+            var price = worksheet.Cell(i, 6).GetString();
+            var dap = worksheet.Cell(i, 7).GetString();
+            var map = worksheet.Cell(i, 8).GetString();
+            var introduce = worksheet.Cell(i, 9).GetString();
+            var description = worksheet.Cell(i, 10).GetString();
+            var expected = worksheet.Cell(i, 11).GetString();
+
+            var elements = driver.FindElements(By.CssSelector("#imageUpload"));
+            if (elements.Count == 0)
+            {
+                Console.WriteLine("Không tìm thấy phần tử #imageUpload");
+            }
+            else
+            {
+                elements[0].SendKeys("D:\\Group.png");
+            }
+
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+
+            driver.FindElement(By.Id("name")).SendKeys(name);
+            driver.FindElement(By.Id("type")).SendKeys(type);
+            driver.FindElement(By.Id("floornumber")).SendKeys(floorNumber);
+            driver.FindElement(By.Id("price")).SendKeys(price);
+            driver.FindElement(By.Id("dap")).SendKeys(dap);
+            driver.FindElement(By.Id("map")).SendKeys(map);
+            driver.FindElement(By.Id("introduce")).SendKeys(introduce);
+            driver.FindElement(By.Id("description")).SendKeys(description);
+
+            IWebElement submitButton = wait.Until(
+                SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Id("submit-add"))
+            );
+
+            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", submitButton);
+
+            try
+            {
+                submitButton.Click();
+            }
+            catch (ElementClickInterceptedException)
+            {
+                ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", submitButton);
+            }
+
+
+            bool isSuccess = false;
+            string actualMessage = "Không tìm thấy thông báo mong đợi";
+
+            try
+            {
+                isSuccess = wait.Until(d => d.PageSource.Contains(expected));
+                if (isSuccess)
+                {
+
+                    actualMessage = expected;
+                }
+            }
+            catch (WebDriverTimeoutException)
+            {
+
+                isSuccess = false;
+            }
+
+            worksheet.Cell(i, 12).Value = actualMessage;
+            worksheet.Cell(i, 13).Value = isSuccess ? "Pass" : "Fail";
+
+            driver.Navigate().GoToUrl($"{baseUrl}/Admin");
+        }
+
+        workbook.Save();
+
+    }
+    [Test]
+    public void TestPrice10()
+    {
+        Login("admin", "admin");
+
+        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/roommanager/create");
+
+
+        for (int i = 34; i <= 34; i++)
+        {
+            var imagePath = worksheet.Cell(i, 2).GetString();
+            var name = worksheet.Cell(i, 3).GetString();
+            var type = worksheet.Cell(i, 4).GetString();
+            var floorNumber = worksheet.Cell(i, 5).GetString();
+            var price = worksheet.Cell(i, 6).GetString();
+            var dap = worksheet.Cell(i, 7).GetString();
+            var map = worksheet.Cell(i, 8).GetString();
+            var introduce = worksheet.Cell(i, 9).GetString();
+            var description = worksheet.Cell(i, 10).GetString();
+            var expected = worksheet.Cell(i, 11).GetString();
+
+            var elements = driver.FindElements(By.CssSelector("#imageUpload"));
+            if (elements.Count == 0)
+            {
+                Console.WriteLine("Không tìm thấy phần tử #imageUpload");
+            }
+            else
+            {
+                elements[0].SendKeys("D:\\Group.png");
+            }
+
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+
+            driver.FindElement(By.Id("name")).SendKeys(name);
+            driver.FindElement(By.Id("type")).SendKeys(type);
+            driver.FindElement(By.Id("floornumber")).SendKeys(floorNumber);
+            driver.FindElement(By.Id("price")).SendKeys(price);
+            driver.FindElement(By.Id("dap")).SendKeys(dap);
+            driver.FindElement(By.Id("map")).SendKeys(map);
+            driver.FindElement(By.Id("introduce")).SendKeys(introduce);
+            driver.FindElement(By.Id("description")).SendKeys(description);
+
+            IWebElement submitButton = wait.Until(
+                SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Id("submit-add"))
+            );
+
+            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", submitButton);
+
+            try
+            {
+                submitButton.Click();
+            }
+            catch (ElementClickInterceptedException)
+            {
+                ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", submitButton);
+            }
+
+
+            bool isSuccess = false;
+            string actualMessage = "Không tìm thấy thông báo mong đợi";
+
+            try
+            {
+                isSuccess = wait.Until(d => d.PageSource.Contains(expected));
+                if (isSuccess)
+                {
+
+                    actualMessage = expected;
+                }
+            }
+            catch (WebDriverTimeoutException)
+            {
+
+                isSuccess = false;
+            }
+
+            worksheet.Cell(i, 12).Value = actualMessage;
+            worksheet.Cell(i, 13).Value = isSuccess ? "Pass" : "Fail";
+
+            driver.Navigate().GoToUrl($"{baseUrl}/Admin");
+        }
+
+        workbook.Save();
+
+    }
+    [Test]
+    public void TestFloornumber()
+    {
+        Login("admin", "admin");
+
+        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/roommanager/create");
+
+
+        for (int i = 35; i <= 35; i++)
+        {
+            var imagePath = worksheet.Cell(i, 2).GetString();
+            var name = worksheet.Cell(i, 3).GetString();
+            var type = worksheet.Cell(i, 4).GetString();
+            var floorNumber = worksheet.Cell(i, 5).GetString();
+            var price = worksheet.Cell(i, 6).GetString();
+            var dap = worksheet.Cell(i, 7).GetString();
+            var map = worksheet.Cell(i, 8).GetString();
+            var introduce = worksheet.Cell(i, 9).GetString();
+            var description = worksheet.Cell(i, 10).GetString();
+            var expected = worksheet.Cell(i, 11).GetString();
+
+            var elements = driver.FindElements(By.CssSelector("#imageUpload"));
+            if (elements.Count == 0)
+            {
+                Console.WriteLine("Không tìm thấy phần tử #imageUpload");
+            }
+            else
+            {
+                elements[0].SendKeys("D:\\Group.png");
+            }
+
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+
+            driver.FindElement(By.Id("name")).SendKeys(name);
+            driver.FindElement(By.Id("type")).SendKeys(type);
+            driver.FindElement(By.Id("floornumber")).SendKeys(floorNumber);
+            driver.FindElement(By.Id("price")).SendKeys(price);
+            driver.FindElement(By.Id("dap")).SendKeys(dap);
+            driver.FindElement(By.Id("map")).SendKeys(map);
+            driver.FindElement(By.Id("introduce")).SendKeys(introduce);
+            driver.FindElement(By.Id("description")).SendKeys(description);
+
+            IWebElement submitButton = wait.Until(
+                SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Id("submit-add"))
+            );
+
+            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", submitButton);
+
+            try
+            {
+                submitButton.Click();
+            }
+            catch (ElementClickInterceptedException)
+            {
+                ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", submitButton);
+            }
+
+
+            bool isSuccess = false;
+            string actualMessage = "Không tìm thấy thông báo mong đợi";
+
+            try
+            {
+                isSuccess = wait.Until(d => d.PageSource.Contains(expected));
+                if (isSuccess)
+                {
+
+                    actualMessage = expected;
+                }
+            }
+            catch (WebDriverTimeoutException)
+            {
+
+                isSuccess = false;
+            }
+
+            worksheet.Cell(i, 12).Value = actualMessage;
+            worksheet.Cell(i, 13).Value = isSuccess ? "Pass" : "Fail";
+
+            driver.Navigate().GoToUrl($"{baseUrl}/Admin");
+        }
+
+        workbook.Save();
+
+    }
+    [Test]
+    public void TestFloornumber2()
+    {
+        Login("admin", "admin");
+
+        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/roommanager/create");
+
+
+        for (int i = 36; i <= 36; i++)
+        {
+            var imagePath = worksheet.Cell(i, 2).GetString();
+            var name = worksheet.Cell(i, 3).GetString();
+            var type = worksheet.Cell(i, 4).GetString();
+            var floorNumber = worksheet.Cell(i, 5).GetString();
+            var price = worksheet.Cell(i, 6).GetString();
+            var dap = worksheet.Cell(i, 7).GetString();
+            var map = worksheet.Cell(i, 8).GetString();
+            var introduce = worksheet.Cell(i, 9).GetString();
+            var description = worksheet.Cell(i, 10).GetString();
+            var expected = worksheet.Cell(i, 11).GetString();
+
+            var elements = driver.FindElements(By.CssSelector("#imageUpload"));
+            if (elements.Count == 0)
+            {
+                Console.WriteLine("Không tìm thấy phần tử #imageUpload");
+            }
+            else
+            {
+                elements[0].SendKeys("D:\\Group.png");
+            }
+
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+
+            driver.FindElement(By.Id("name")).SendKeys(name);
+            driver.FindElement(By.Id("type")).SendKeys(type);
+            driver.FindElement(By.Id("floornumber")).SendKeys(floorNumber);
+            driver.FindElement(By.Id("price")).SendKeys(price);
+            driver.FindElement(By.Id("dap")).SendKeys(dap);
+            driver.FindElement(By.Id("map")).SendKeys(map);
+            driver.FindElement(By.Id("introduce")).SendKeys(introduce);
+            driver.FindElement(By.Id("description")).SendKeys(description);
+
+            IWebElement submitButton = wait.Until(
+                SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Id("submit-add"))
+            );
+
+            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", submitButton);
+
+            try
+            {
+                submitButton.Click();
+            }
+            catch (ElementClickInterceptedException)
+            {
+                ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", submitButton);
+            }
+
+
+            bool isSuccess = false;
+            string actualMessage = "Không tìm thấy thông báo mong đợi";
+
+            try
+            {
+                isSuccess = wait.Until(d => d.PageSource.Contains(expected));
+                if (isSuccess)
+                {
+
+                    actualMessage = expected;
+                }
+            }
+            catch (WebDriverTimeoutException)
+            {
+
+                isSuccess = false;
+            }
+
+            worksheet.Cell(i, 12).Value = actualMessage;
+            worksheet.Cell(i, 13).Value = isSuccess ? "Pass" : "Fail";
+
+            driver.Navigate().GoToUrl($"{baseUrl}/Admin");
+        }
+
+        workbook.Save();
+
+    }
+    [Test]
+    public void TestFloornumber3()
+    {
+        Login("admin", "admin");
+
+        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/roommanager/create");
+
+
+        for (int i = 37; i <= 37; i++)
+        {
+            var imagePath = worksheet.Cell(i, 2).GetString();
+            var name = worksheet.Cell(i, 3).GetString();
+            var type = worksheet.Cell(i, 4).GetString();
+            var floorNumber = worksheet.Cell(i, 5).GetString();
+            var price = worksheet.Cell(i, 6).GetString();
+            var dap = worksheet.Cell(i, 7).GetString();
+            var map = worksheet.Cell(i, 8).GetString();
+            var introduce = worksheet.Cell(i, 9).GetString();
+            var description = worksheet.Cell(i, 10).GetString();
+            var expected = worksheet.Cell(i, 11).GetString();
+
+            var elements = driver.FindElements(By.CssSelector("#imageUpload"));
+            if (elements.Count == 0)
+            {
+                Console.WriteLine("Không tìm thấy phần tử #imageUpload");
+            }
+            else
+            {
+                elements[0].SendKeys("D:\\Group.png");
+            }
+
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+
+            driver.FindElement(By.Id("name")).SendKeys(name);
+            driver.FindElement(By.Id("type")).SendKeys(type);
+            driver.FindElement(By.Id("floornumber")).SendKeys(floorNumber);
+            driver.FindElement(By.Id("price")).SendKeys(price);
+            driver.FindElement(By.Id("dap")).SendKeys(dap);
+            driver.FindElement(By.Id("map")).SendKeys(map);
+            driver.FindElement(By.Id("introduce")).SendKeys(introduce);
+            driver.FindElement(By.Id("description")).SendKeys(description);
+
+            IWebElement submitButton = wait.Until(
+                SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Id("submit-add"))
+            );
+
+            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", submitButton);
+
+            try
+            {
+                submitButton.Click();
+            }
+            catch (ElementClickInterceptedException)
+            {
+                ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", submitButton);
+            }
+
+
+            bool isSuccess = false;
+            string actualMessage = "Không tìm thấy thông báo mong đợi";
+
+            try
+            {
+                isSuccess = wait.Until(d => d.PageSource.Contains(expected));
+                if (isSuccess)
+                {
+
+                    actualMessage = expected;
+                }
+            }
+            catch (WebDriverTimeoutException)
+            {
+
+                isSuccess = false;
+            }
+
+            worksheet.Cell(i, 12).Value = actualMessage;
+            worksheet.Cell(i, 13).Value = isSuccess ? "Pass" : "Fail";
+
+            driver.Navigate().GoToUrl($"{baseUrl}/Admin");
+        }
+
+        workbook.Save();
+
+    }
+    [Test]
+    public void TestFloornumber4()
+    {
+        Login("admin", "admin");
+
+        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/roommanager/create");
+
+
+        for (int i = 38; i <= 38; i++)
+        {
+            var imagePath = worksheet.Cell(i, 2).GetString();
+            var name = worksheet.Cell(i, 3).GetString();
+            var type = worksheet.Cell(i, 4).GetString();
+            var floorNumber = worksheet.Cell(i, 5).GetString();
+            var price = worksheet.Cell(i, 6).GetString();
+            var dap = worksheet.Cell(i, 7).GetString();
+            var map = worksheet.Cell(i, 8).GetString();
+            var introduce = worksheet.Cell(i, 9).GetString();
+            var description = worksheet.Cell(i, 10).GetString();
+            var expected = worksheet.Cell(i, 11).GetString();
+
+            var elements = driver.FindElements(By.CssSelector("#imageUpload"));
+            if (elements.Count == 0)
+            {
+                Console.WriteLine("Không tìm thấy phần tử #imageUpload");
+            }
+            else
+            {
+                elements[0].SendKeys("D:\\Group.png");
+            }
+
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+
+            driver.FindElement(By.Id("name")).SendKeys(name);
+            driver.FindElement(By.Id("type")).SendKeys(type);
+            driver.FindElement(By.Id("floornumber")).SendKeys(floorNumber);
+            driver.FindElement(By.Id("price")).SendKeys(price);
+            driver.FindElement(By.Id("dap")).SendKeys(dap);
+            driver.FindElement(By.Id("map")).SendKeys(map);
+            driver.FindElement(By.Id("introduce")).SendKeys(introduce);
+            driver.FindElement(By.Id("description")).SendKeys(description);
+
+            IWebElement submitButton = wait.Until(
+                SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Id("submit-add"))
+            );
+
+            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", submitButton);
+
+            try
+            {
+                submitButton.Click();
+            }
+            catch (ElementClickInterceptedException)
+            {
+                ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", submitButton);
+            }
+
+
+            bool isSuccess = false;
+            string actualMessage = "Số lầu hợp lệ";
+
+            try
+            {
+                isSuccess = wait.Until(d => d.PageSource.Contains(expected));
+                if (isSuccess)
+                {
+
+                    actualMessage = expected;
+                }
+            }
+            catch (WebDriverTimeoutException)
+            {
+
+                isSuccess = false;
+            }
+
+            worksheet.Cell(i, 12).Value = actualMessage;
+            worksheet.Cell(i, 13).Value = isSuccess ? "Fail" : "Pass";
+
+            driver.Navigate().GoToUrl($"{baseUrl}/Admin");
+        }
+
+        workbook.Save();
+
+    }
+    [Test]
+    public void TestFloornumber5()
+    {
+        Login("admin", "admin");
+
+        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/roommanager/create");
+
+
+        for (int i = 39; i <= 39; i++)
+        {
+            var imagePath = worksheet.Cell(i, 2).GetString();
+            var name = worksheet.Cell(i, 3).GetString();
+            var type = worksheet.Cell(i, 4).GetString();
+            var floorNumber = worksheet.Cell(i, 5).GetString();
+            var price = worksheet.Cell(i, 6).GetString();
+            var dap = worksheet.Cell(i, 7).GetString();
+            var map = worksheet.Cell(i, 8).GetString();
+            var introduce = worksheet.Cell(i, 9).GetString();
+            var description = worksheet.Cell(i, 10).GetString();
+            var expected = worksheet.Cell(i, 11).GetString();
+
+            var elements = driver.FindElements(By.CssSelector("#imageUpload"));
+            if (elements.Count == 0)
+            {
+                Console.WriteLine("Không tìm thấy phần tử #imageUpload");
+            }
+            else
+            {
+                elements[0].SendKeys("D:\\Group.png");
+            }
+
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+
+            driver.FindElement(By.Id("name")).SendKeys(name);
+            driver.FindElement(By.Id("type")).SendKeys(type);
+            driver.FindElement(By.Id("floornumber")).SendKeys(floorNumber);
+            driver.FindElement(By.Id("price")).SendKeys(price);
+            driver.FindElement(By.Id("dap")).SendKeys(dap);
+            driver.FindElement(By.Id("map")).SendKeys(map);
+            driver.FindElement(By.Id("introduce")).SendKeys(introduce);
+            driver.FindElement(By.Id("description")).SendKeys(description);
+
+            IWebElement submitButton = wait.Until(
+                SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Id("submit-add"))
+            );
+
+            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", submitButton);
+
+            try
+            {
+                submitButton.Click();
+            }
+            catch (ElementClickInterceptedException)
+            {
+                ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", submitButton);
+            }
+
+
+            bool isSuccess = false;
+            string actualMessage = "Số lầu hợp lệ";
+
+            try
+            {
+                isSuccess = wait.Until(d => d.PageSource.Contains(expected));
+                if (isSuccess)
+                {
+
+                    actualMessage = expected;
+                }
+            }
+            catch (WebDriverTimeoutException)
+            {
+
+                isSuccess = false;
+            }
+
+            worksheet.Cell(i, 12).Value = actualMessage;
+            worksheet.Cell(i, 13).Value = isSuccess ? "Fail" : "Pass";
+
+            driver.Navigate().GoToUrl($"{baseUrl}/Admin");
+        }
+
+        workbook.Save();
+
+    }
+    [Test]
+    public void TestFloornumber6()
+    {
+        Login("admin", "admin");
+
+        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/roommanager/create");
+
+
+        for (int i = 40; i <= 40; i++)
+        {
+            var imagePath = worksheet.Cell(i, 2).GetString();
+            var name = worksheet.Cell(i, 3).GetString();
+            var type = worksheet.Cell(i, 4).GetString();
+            var floorNumber = worksheet.Cell(i, 5).GetString();
+            var price = worksheet.Cell(i, 6).GetString();
+            var dap = worksheet.Cell(i, 7).GetString();
+            var map = worksheet.Cell(i, 8).GetString();
+            var introduce = worksheet.Cell(i, 9).GetString();
+            var description = worksheet.Cell(i, 10).GetString();
+            var expected = worksheet.Cell(i, 11).GetString();
+
+            var elements = driver.FindElements(By.CssSelector("#imageUpload"));
+            if (elements.Count == 0)
+            {
+                Console.WriteLine("Không tìm thấy phần tử #imageUpload");
+            }
+            else
+            {
+                elements[0].SendKeys("D:\\Group.png");
+            }
+
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+
+            driver.FindElement(By.Id("name")).SendKeys(name);
+            driver.FindElement(By.Id("type")).SendKeys(type);
+            driver.FindElement(By.Id("floornumber")).SendKeys(floorNumber);
+            driver.FindElement(By.Id("price")).SendKeys(price);
+            driver.FindElement(By.Id("dap")).SendKeys(dap);
+            driver.FindElement(By.Id("map")).SendKeys(map);
+            driver.FindElement(By.Id("introduce")).SendKeys(introduce);
+            driver.FindElement(By.Id("description")).SendKeys(description);
+
+            IWebElement submitButton = wait.Until(
+                SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Id("submit-add"))
+            );
+
+            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", submitButton);
+
+            try
+            {
+                submitButton.Click();
+            }
+            catch (ElementClickInterceptedException)
+            {
+                ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", submitButton);
+            }
+
+
+            bool isSuccess = false;
+            string actualMessage = "Số lầu hợp lệ";
+
+            try
+            {
+                isSuccess = wait.Until(d => d.PageSource.Contains(expected));
+                if (isSuccess)
+                {
+
+                    actualMessage = expected;
+                }
+            }
+            catch (WebDriverTimeoutException)
+            {
+
+                isSuccess = false;
+            }
+
+            worksheet.Cell(i, 12).Value = actualMessage;
+            worksheet.Cell(i, 13).Value = isSuccess ? "Fail" : "Pass";
+
+            driver.Navigate().GoToUrl($"{baseUrl}/Admin");
+        }
+
+        workbook.Save();
+
+    }
+    [Test]
+    public void TestFloornumber7()
+    {
+        Login("admin", "admin");
+
+        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/roommanager/create");
+
+
+        for (int i = 41; i <= 41; i++)
+        {
+            var imagePath = worksheet.Cell(i, 2).GetString();
+            var name = worksheet.Cell(i, 3).GetString();
+            var type = worksheet.Cell(i, 4).GetString();
+            var floorNumber = worksheet.Cell(i, 5).GetString();
+            var price = worksheet.Cell(i, 6).GetString();
+            var dap = worksheet.Cell(i, 7).GetString();
+            var map = worksheet.Cell(i, 8).GetString();
+            var introduce = worksheet.Cell(i, 9).GetString();
+            var description = worksheet.Cell(i, 10).GetString();
+            var expected = worksheet.Cell(i, 11).GetString();
+
+            var elements = driver.FindElements(By.CssSelector("#imageUpload"));
+            if (elements.Count == 0)
+            {
+                Console.WriteLine("Không tìm thấy phần tử #imageUpload");
+            }
+            else
+            {
+                elements[0].SendKeys("D:\\Group.png");
+            }
+
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+
+            driver.FindElement(By.Id("name")).SendKeys(name);
+            driver.FindElement(By.Id("type")).SendKeys(type);
+            driver.FindElement(By.Id("floornumber")).SendKeys(floorNumber);
+            driver.FindElement(By.Id("price")).SendKeys(price);
+            driver.FindElement(By.Id("dap")).SendKeys(dap);
+            driver.FindElement(By.Id("map")).SendKeys(map);
+            driver.FindElement(By.Id("introduce")).SendKeys(introduce);
+            driver.FindElement(By.Id("description")).SendKeys(description);
+
+            IWebElement submitButton = wait.Until(
+                SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Id("submit-add"))
+            );
+
+            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", submitButton);
+
+            try
+            {
+                submitButton.Click();
+            }
+            catch (ElementClickInterceptedException)
+            {
+                ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", submitButton);
+            }
+
+
+            bool isSuccess = false;
+            string actualMessage = "Không tìm thấy thông báo mong đợi";
+
+            try
+            {
+                isSuccess = wait.Until(d => d.PageSource.Contains(expected));
+                if (isSuccess)
+                {
+
+                    actualMessage = expected;
+                }
+            }
+            catch (WebDriverTimeoutException)
+            {
+
+                isSuccess = false;
+            }
+
+            worksheet.Cell(i, 12).Value = actualMessage;
+            worksheet.Cell(i, 13).Value = isSuccess ? "Pass" : "Fail";
+
+            driver.Navigate().GoToUrl($"{baseUrl}/Admin");
+        }
+
+        workbook.Save();
+
+    }
+    [Test]
+    public void TestFloornumber8()
+    {
+        Login("admin", "admin");
+
+        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/roommanager/create");
+
+
+        for (int i = 42; i <= 42; i++)
+        {
+            var imagePath = worksheet.Cell(i, 2).GetString();
+            var name = worksheet.Cell(i, 3).GetString();
+            var type = worksheet.Cell(i, 4).GetString();
+            var floorNumber = worksheet.Cell(i, 5).GetString();
+            var price = worksheet.Cell(i, 6).GetString();
+            var dap = worksheet.Cell(i, 7).GetString();
+            var map = worksheet.Cell(i, 8).GetString();
+            var introduce = worksheet.Cell(i, 9).GetString();
+            var description = worksheet.Cell(i, 10).GetString();
+            var expected = worksheet.Cell(i, 11).GetString();
+
+            var elements = driver.FindElements(By.CssSelector("#imageUpload"));
+            if (elements.Count == 0)
+            {
+                Console.WriteLine("Không tìm thấy phần tử #imageUpload");
+            }
+            else
+            {
+                elements[0].SendKeys("D:\\Group.png");
+            }
+
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+
+            driver.FindElement(By.Id("name")).SendKeys(name);
+            driver.FindElement(By.Id("type")).SendKeys(type);
+            driver.FindElement(By.Id("floornumber")).SendKeys(floorNumber);
+            driver.FindElement(By.Id("price")).SendKeys(price);
+            driver.FindElement(By.Id("dap")).SendKeys(dap);
+            driver.FindElement(By.Id("map")).SendKeys(map);
+            driver.FindElement(By.Id("introduce")).SendKeys(introduce);
+            driver.FindElement(By.Id("description")).SendKeys(description);
+
+            IWebElement submitButton = wait.Until(
+                SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Id("submit-add"))
+            );
+
+            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", submitButton);
+
+            try
+            {
+                submitButton.Click();
+            }
+            catch (ElementClickInterceptedException)
+            {
+                ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", submitButton);
+            }
+
+
+            bool isSuccess = false;
+            string actualMessage = "Không tìm thấy thông báo mong đợi";
+
+            try
+            {
+                isSuccess = wait.Until(d => d.PageSource.Contains(expected));
+                if (isSuccess)
+                {
+
+                    actualMessage = expected;
+                }
+            }
+            catch (WebDriverTimeoutException)
+            {
+
+                isSuccess = false;
+            }
+
+            worksheet.Cell(i, 12).Value = actualMessage;
+            worksheet.Cell(i, 13).Value = isSuccess ? "Pass" : "Fail";
+
+            driver.Navigate().GoToUrl($"{baseUrl}/Admin");
+        }
+
+        workbook.Save();
+
+    }
+    [Test]
+    public void TestFloornumber9()
+    {
+        Login("admin", "admin");
+
+        driver.Navigate().GoToUrl($"http://localhost:5145/Admin/roommanager/create");
+
+
+        for (int i = 43; i <= 43; i++)
+        {
+            var imagePath = worksheet.Cell(i, 2).GetString();
+            var name = worksheet.Cell(i, 3).GetString();
+            var type = worksheet.Cell(i, 4).GetString();
+            var floorNumber = worksheet.Cell(i, 5).GetString();
+            var price = worksheet.Cell(i, 6).GetString();
+            var dap = worksheet.Cell(i, 7).GetString();
+            var map = worksheet.Cell(i, 8).GetString();
+            var introduce = worksheet.Cell(i, 9).GetString();
+            var description = worksheet.Cell(i, 10).GetString();
+            var expected = worksheet.Cell(i, 11).GetString();
+
+            var elements = driver.FindElements(By.CssSelector("#imageUpload"));
+            if (elements.Count == 0)
+            {
+                Console.WriteLine("Không tìm thấy phần tử #imageUpload");
+            }
+            else
+            {
+                elements[0].SendKeys("D:\\Group.png");
+            }
+
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+
+            driver.FindElement(By.Id("name")).SendKeys(name);
+            driver.FindElement(By.Id("type")).SendKeys(type);
+            driver.FindElement(By.Id("floornumber")).SendKeys(floorNumber);
+            driver.FindElement(By.Id("price")).SendKeys(price);
+            driver.FindElement(By.Id("dap")).SendKeys(dap);
+            driver.FindElement(By.Id("map")).SendKeys(map);
+            driver.FindElement(By.Id("introduce")).SendKeys(introduce);
+            driver.FindElement(By.Id("description")).SendKeys(description);
+
+            IWebElement submitButton = wait.Until(
+                SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Id("submit-add"))
+            );
+
+            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", submitButton);
+
+            try
+            {
+                submitButton.Click();
+            }
+            catch (ElementClickInterceptedException)
+            {
+                ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", submitButton);
+            }
+
+
+            bool isSuccess = false;
+            string actualMessage = "Không tìm thấy thông báo mong đợi";
+
+            try
+            {
+                isSuccess = wait.Until(d => d.PageSource.Contains(expected));
+                if (isSuccess)
+                {
+
+                    actualMessage = expected;
+                }
+            }
+            catch (WebDriverTimeoutException)
+            {
+
+                isSuccess = false;
+            }
+
+            worksheet.Cell(i, 12).Value = actualMessage;
+            worksheet.Cell(i, 13).Value = isSuccess ? "Pass" : "Fail";
+
+            driver.Navigate().GoToUrl($"{baseUrl}/Admin");
+        }
+
+        workbook.Save();
+
     }
     [Test]
     public void TestPeople()
@@ -786,7 +3753,7 @@ public class TestAddRooms
         Login("admin", "admin");
 
         driver.Navigate().GoToUrl($"{baseUrl}/Admin/RoomManager/Create");
-        for (int i = 14; i <= 18; i++)
+        for (int i = 44; i <= 48; i++)
         {
             var imagePath = worksheet.Cell(i, 2).GetString();
             var name = worksheet.Cell(i, 3).GetString();
@@ -878,13 +3845,110 @@ public class TestAddRooms
         }
     }
     [Test]
+    public void TestPeople2()
+    {
+        Login("admin", "admin");
+
+        driver.Navigate().GoToUrl($"{baseUrl}/Admin/RoomManager/Create");
+        for (int i = 49; i <= 52; i++)
+        {
+            var imagePath = worksheet.Cell(i, 2).GetString();
+            var name = worksheet.Cell(i, 3).GetString();
+            var type = worksheet.Cell(i, 4).GetString();
+            var floorNumber = worksheet.Cell(i, 5).GetString();
+            var price = worksheet.Cell(i, 6).GetString();
+            var dap = worksheet.Cell(i, 7).GetString();
+            var map = worksheet.Cell(i, 8).GetString();
+            var introduce = worksheet.Cell(i, 9).GetString();
+            var description = worksheet.Cell(i, 10).GetString();
+            var expected = worksheet.Cell(i, 11).GetString();
+            var elements = driver.FindElements(By.CssSelector("#imageUpload"));
+            if (elements.Count == 0)
+            {
+                Console.WriteLine("Không tìm thấy phần tử #imageUpload");
+            }
+            else
+            {
+                elements[0].SendKeys("C:\\Users\\admin\\Pictures\\Group1.png");
+            }
+
+            try
+            {
+                // Điền dữ liệu vào form
+                driver.FindElement(By.Id("name")).SendKeys(name);
+                driver.FindElement(By.Id("type")).SendKeys(type);
+                driver.FindElement(By.Id("floornumber")).SendKeys(floorNumber);
+                driver.FindElement(By.Id("price")).SendKeys(price);
+                driver.FindElement(By.Id("dap")).SendKeys(dap);
+                driver.FindElement(By.Id("map")).SendKeys(map);
+                driver.FindElement(By.Id("introduce")).SendKeys(introduce);
+                driver.FindElement(By.Id("description")).SendKeys(description);
+
+                WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+
+                IWebElement submitButton = wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.Id("submit-add")));
+
+                ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].scrollIntoView(true);", submitButton);
+
+                try
+                {
+                    submitButton.Click();
+                }
+                catch (ElementClickInterceptedException)
+                {
+                    ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", submitButton);
+                }
+                bool isInvalidPrice = false;
+                try
+                {
+                    isInvalidPrice = wait.Until(d =>
+                        d.PageSource.Contains("Số người quy định không được bỏ trống") ||
+                        d.PageSource.Contains("Tối thiểu 1 người") ||
+                        d.PageSource.Contains("Tối đa 5 người") ||
+                        d.PageSource.Contains("Tối thiểu 1 và tối đa 1 người"));
+                }
+                catch (WebDriverTimeoutException)
+                {
+                    isInvalidPrice = false;
+                }
+
+
+                // Kiểm tra kết quả hiển thị trên trang
+                bool isSuccess = false;
+                string actualMessage = "Không tìm thấy message mong đợi. ";
+
+                try
+                {
+                    isSuccess = wait.Until(d => d.PageSource.Contains("Thêm thành công") || d.PageSource.Contains("Giá không hợp lệ"));
+                }
+                catch (WebDriverTimeoutException)
+                {
+                    isSuccess = false;
+                }
+
+                // Ghi kết quả vào Excel
+                worksheet.Cell(i, 12).Value = isSuccess ? "Success" : "Không tìm thấy message mong đợi.";
+                worksheet.Cell(i, 13).Value = (expected == actualMessage && isSuccess) || (expected == "Fail" && !isSuccess) ? "Pass" : "Fail";
+            }
+            catch (Exception ex)
+            {
+                worksheet.Cell(i, 12).Value = "Error";
+                worksheet.Cell(i, 13).Value = "Error";
+            }
+
+            // Điều hướng lại trang để thêm phòng mới
+            driver.Navigate().GoToUrl("http://localhost:5145/Admin/RoomManager/Create");
+            workbook.Save();
+        }
+    }
+    [Test]
     public void TestRoomMaxPeopleConstraints()
     {
         Login("admin", "admin");
 
         driver.Navigate().GoToUrl($"http://localhost:5145/Admin/roommanager/create");
 
-        for (int i =19 ; i <= 22; i++)
+        for (int i =53 ; i <= 62; i++)
         {
             // Đọc dữ liệu từ Excel
             var imagePath = worksheet.Cell(i, 2).GetString();  // Cột 2: đường dẫn ảnh
@@ -905,7 +3969,7 @@ public class TestAddRooms
             }
             else
             {
-                elements[0].SendKeys("C:\\Users\\admin\\Pictures\\Group1.png");
+                elements[0].SendKeys("D:\\Group.png");
             }
 
             // 5. Điền form

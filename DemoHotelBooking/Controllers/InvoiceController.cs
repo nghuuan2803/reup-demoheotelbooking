@@ -62,10 +62,9 @@ namespace DemoHotelBooking.Controllers
             if (!(bk.Status == 1 || bk.Status == 2))
                 return RedirectToAction("BookingList");
             var inv = _context.Invoices.FirstOrDefault(i => i.BookingId == id);
-            //sửa check-in
+
             if (inv.Booking.CheckinDate.Date != DateTime.Today)
                 return RedirectToAction("BookingList");
-            //
 
             if (inv != null) return NotFound();
             var Receptionist = await _userManager.GetUserAsync(HttpContext.User);
